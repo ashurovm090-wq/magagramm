@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Magagrame</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #0f172a; margin: 0; overflow: hidden; }
+        .bubble { 
+            position: absolute; border-radius: 50%; 
+            background: rgba(255, 255, 255, 0.03); 
+            pointer-events: none; z-index: 0;
+        }
+        #main-ui { z-index: 1; position: relative; }
+    </style>
+</head>
+<body class="h-screen flex text-white">
+
+    <div id="bubbles"></div>
+
+    <div id="main-ui" class="flex w-full h-full">
+        <div class="w-1/4 min-w-[200px] border-r border-gray-700 bg-[#1e293b] p-4 flex flex-col">
+            <h2 class="font-bold text-xl mb-6">Magagrame</h2>
+            <div class="bg-gray-800 p-3 rounded-xl border border-gray-600">Общий чат</div>
+        </div>
+
+        <div class="flex-1 flex flex-col bg-[#0f172a]">
+            <div id="messages" class="flex-1 overflow-y-auto p-6 space-y-4"></div>
+            <div class="p-4 bg-[#1e293b] flex gap-3">
+                <input id="messageText" class="flex-1 bg-gray-800 rounded-xl px-5 py-3 outline-none" placeholder="Сообщение...">
+                <button onclick="sendMessage()" class="bg-blue-600 px-8 rounded-xl hover:bg-blue-500">Отправить</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Генерация 40 пузырей
+        for(let i=0; i<40; i++) {
+            const b = document.createElement('div');
+            const size = Math.random() * 150 + 40 + 'px';
+            b.className = 'bubble';
+            b.style.width = b.style.height = size;
+            b.style.top = Math.random() * 100 + '%';
+            b.style.left = Math.random() * 100 + '%';
+            document.getElementById('bubbles').appendChild(b);
+        }
+
+        const ws = new WebSocket("ws://" + window.location.hostname + ":8000/ws");
+        ws.onmessage = (e) => {
+            const msgs = document.getElementById('messages');
+            msgs.innerHTML += `<div class="bg-blue-600 p-4 rounded-2xl w-fit ml-auto shadow-xl">${e.data}</div>`;
+            msgs.scrollTop = msgs.scrollHeight;
+        };
+
+        function sendMessage() {
+            const input = document.getElementById("messageText");
+            if(input.value) { ws.send(input.value); input.value = ''; }
+        }
+    </script>
+</body>
+</html>

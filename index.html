@@ -1,37 +1,48 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>body{background:#0f1621;color:white;}</style>
 </head>
 <body class="h-screen flex flex-col">
-    <div id="results" class="flex-1 p-4 space-y-2"></div>
-    
-    <div class="p-4 bg-[#17212b] border-t border-gray-700">
-        <input id="search" oninput="doSearch()" class="w-full p-2 bg-[#242f3d] rounded" placeholder="Поиск пользователей...">
+    <div class="p-4 bg-[#17212b]">
+        <input id="search" oninput="doSearch()" class="w-full p-2 bg-[#242f3d] rounded" placeholder="Найти юзера...">
+        <div id="results" class="mt-2 space-y-1"></div>
     </div>
     
-    <nav class="p-4 flex justify-around bg-[#17212b]">
-        <a href="/">💬 Чаты</a>
-        <a href="/profile">👤 Профиль</a>
-    </nav>
+    <div id="chat" class="flex-1 p-4 overflow-y-auto space-y-2"></div>
+    <div class="p-4 bg-[#17212b] flex gap-2">
+        <input id="msg" class="flex-1 p-2 bg-[#242f3d] rounded" placeholder="Сообщение...">
+        <button onclick="send()" class="bg-blue-600 px-4 rounded">Отпр.</button>
+    </div>
 
     <script>
+        const myName = "{{ username }}";
+        const ws = new WebSocket(`wss://${window.location.host}/ws/${myName}`);
+        
+        ws.onmessage = (e) => {
+            const d = document.createElement('div');
+            d.textContent = e.data;
+            document.getElementById('chat').appendChild(d);
+        };
+
         async function doSearch() {
-            const query = document.getElementById('search').value;
-            if (query.length < 2) return;
-            const res = await fetch(`/search?query=${query}`);
-            const data = await res.json();
-            const resDiv = document.getElementById('results');
-            resDiv.innerHTML = '';
-            data.users.forEach(u => {
-                const btn = document.createElement('div');
-                btn.className = "p-3 bg-[#242f3d] rounded cursor-pointer";
-                btn.textContent = u;
-                btn.onclick = () => alert("Открываем чат с " + u);
-                resDiv.appendChild(btn);
+            const q = document.getElementById('search').value;
+            const res = await (await fetch(`/search?query=${q}`)).json();
+            const rDiv = document.getElementById('results');
+            rDiv.innerHTML = '';
+            res.users.forEach(u => {
+                const b = document.createElement('div');
+                b.className = "text-blue-400 cursor-pointer";
+                b.textContent = "@" + u;
+                b.onclick = () => { document.getElementById('msg').value = u + ":"; };
+                rDiv.appendChild(b);
             });
+        }
+
+        function send() {
+            const m = document.getElementById('msg');
+            ws.send(m.value); m.value = '';
         }
     </script>
 </body>

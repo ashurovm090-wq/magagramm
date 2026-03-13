@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>body { background-color: #0f1621; color: white; }</style>
+</head>
+<body class="p-6">
+    <h2 class="text-xl font-bold mb-6">Редактировать профиль</h2>
+    
+    <form action="/edit" method="post" class="space-y-4">
+        <div>
+            <label class="block text-xs text-gray-500 uppercase mb-1">О себе</label>
+            <textarea name="bio" class="w-full p-3 bg-[#242f3d] rounded-lg outline-none border border-gray-700">{{ bio }}</textarea>
+        </div>
+        
+        <div>
+            <label class="block text-xs text-gray-500 uppercase mb-1">Дата рождения</label>
+            <input type="text" name="birthday" value="{{ birthday }}" class="w-full p-3 bg-[#242f3d] rounded-lg outline-none border border-gray-700">
+        </div>
+        
+        <button type="submit" class="w-full bg-[#2b5278] py-3 rounded-lg font-bold hover:bg-[#346291] transition">
+            Сохранить изменения
+        </button>
+        
+        <a href="/profile" class="block text-center text-gray-500 mt-4 text-sm">Отмена</a>
+    </form>
+</body>
+</html>

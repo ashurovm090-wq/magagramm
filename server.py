@@ -1,46 +1,18 @@
-from fastapi import FastAPI, Request, Form, WebSocket, WebSocketDisconnect
-from fastapi.responses import RedirectResponse
-from fastapi.templating import Jinja2Templates
-import sqlite3
-import uvicorn
-
-app = FastAPI()
-templates = Jinja2Templates(directory=".")
-
-def init_db():
-    conn = sqlite3.connect('users.db')
-    cursor = conn.cursor()
-    # Добавляем поля: ФИО, bio, день рождения
-    cursor.execute('''CREATE TABLE IF NOT EXISTS users 
-                      (username TEXT PRIMARY KEY, fullname TEXT, bio TEXT, birthday TEXT)''')
-    conn.commit()
-    conn.close()
-
-init_db()
-
-active_connections = {}
-
-@app.get("/login")
-async def get_login(request: Request): 
-    return templates.TemplateResponse("login.html", {"request": request})
-
-@app.post("/login")
-async def post_login(
-    username: str = Form(...), 
-    fullname: str = Form(...), 
-    bio: str = Form(...), 
-    birthday: str = Form(...)
-):
-    clean_user = username.strip().lower()
-    conn = sqlite3.connect('users.db')
-    cursor = conn.cursor()
-    # Используем INSERT OR REPLACE, чтобы обновлять данные при повторном входе
-    cursor.execute('INSERT OR REPLACE INTO users VALUES (?, ?, ?, ?)', 
-                   (clean_user, fullname, bio, birthday))
-    conn.commit()
-    conn.close()
-    resp = RedirectResponse(url="/", status_code=303)
-    resp.set_cookie(key="username", value=clean_user)
-    return resp
-
-# Остальные роуты (профиль, поиск, чат) остаются, но теперь они будут брать данные из новых полей
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>body{background:#0f1621;color:white;}</style>
+</head>
+<body class="flex items-center justify-center h-screen">
+    <form action="/login" method="post" class="w-full max-w-sm p-6 space-y-4">
+        <h2 class="text-2xl text-center font-bold">Magagrame</h2>
+        <input name="username" placeholder="Username (eng)" required class="w-full p-3 bg-[#242f3d] rounded border border-gray-600">
+        <input name="fullname" placeholder="Ваше имя" required class="w-full p-3 bg-[#242f3d] rounded border border-gray-600">
+        <input name="bio" placeholder="О себе" class="w-full p-3 bg-[#242f3d] rounded border border-gray-600">
+        <input name="birthday" placeholder="Дата рождения" class="w-full p-3 bg-[#242f3d] rounded border border-gray-600">
+        <button type="submit" class="w-full bg-blue-600 p-3 rounded font-bold">Войти</button>
+    </form>
+</body>
+</html>

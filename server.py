@@ -17,16 +17,7 @@ def init_db():
 
 init_db()
 
-class ConnectionManager:
-    def __init__(self): self.active_connections = []
-    async def connect(self, ws: WebSocket):
-        await ws.accept()
-        self.active_connections.append(ws)
-    def disconnect(self, ws: WebSocket): self.active_connections.remove(ws)
-    async def broadcast(self, msg: str):
-        for conn in self.active_connections: await conn.send_text(msg)
-
-manager = ConnectionManager()
+active_connections = {}
 
 @app.get("/")
 async def get_index(request: Request):
@@ -42,7 +33,7 @@ async def post_login(username: str = Form(...)):
     clean_user = username.strip().lower()
     conn = sqlite3.connect('users.db')
     cursor = conn.cursor()
-    cursor.execute('INSERT OR IGNORE INTO users VALUES (?, ?, ?)', (clean_user, "Привет, я в Magagrame!", "Не указана"))
+    cursor.execute('INSERT OR IGNORE INTO users VALUES (?, ?, ?)', (clean_user, "Привет!", "Не указана"))
     conn.commit()
     conn.close()
     resp = RedirectResponse(url="/", status_code=303)
@@ -58,42 +49,31 @@ async def get_profile(request: Request):
     cursor.execute('SELECT bio, birthday FROM users WHERE username = ?', (user,))
     data = cursor.fetchone()
     conn.close()
-    # Безопасная обработка данных
-    bio = data[0] if data else "Привет, я новенький!"
-    bday = data[1] if data else "Не указана"
-    return templates.TemplateResponse("profile.html", {"request": request, "username": user, "bio": bio, "birthday": bday})
+    return templates.TemplateResponse("profile.html", {
+        "request": request, "username": user, 
+        "bio": data[0] if data else "Привет!", "birthday": data[1] if data else "Не указана"
+    })
 
-@app.get("/edit")
-async def get_edit(request: Request):
-    user = request.cookies.get("username")
+@app.get("/search")
+async def search_users(query: str):
     conn = sqlite3.connect('users.db')
     cursor = conn.cursor()
-    cursor.execute('SELECT bio, birthday FROM users WHERE username = ?', (user,))
-    data = cursor.fetchone()
+    cursor.execute("SELECT username FROM users WHERE username LIKE ?", ('%' + query + '%',))
+    results = cursor.fetchall()
     conn.close()
-    bio = data[0] if data else ""
-    bday = data[1] if data else ""
-    return templates.TemplateResponse("edit.html", {"request": request, "bio": bio, "birthday": bday})
-
-@app.post("/edit")
-async def post_edit(request: Request, bio: str = Form(...), birthday: str = Form(...)):
-    user = request.cookies.get("username")
-    conn = sqlite3.connect('users.db')
-    cursor = conn.cursor()
-    cursor.execute('UPDATE users SET bio = ?, birthday = ? WHERE username = ?', (bio, birthday, user))
-    conn.commit()
-    conn.close()
-    return RedirectResponse(url="/profile", status_code=303)
+    return {"users": [r[0] for r in results]}
 
 @app.websocket("/ws/{username}")
-async def ws_endpoint(ws: WebSocket, username: str):
-    await manager.connect(ws)
+async def ws_endpoint(websocket: WebSocket, username: str):
+    await websocket.accept()
+    active_connections[username] = websocket
     try:
         while True:
-            data = await ws.receive_text()
-            await manager.broadcast(f"{username}: {data}")
+            data = await websocket.receive_text()
+            for connection in active_connections.values():
+                await connection.send_text(f"{username}: {data}")
     except WebSocketDisconnect:
-        manager.disconnect(ws)
+        del active_connections[username]
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=10000)

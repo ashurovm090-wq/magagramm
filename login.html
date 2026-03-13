@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>body{background:#0f1621;color:white;}</style>
 </head>
-<body class="p-6">
-    <h1 class="text-2xl mb-6">Добро пожаловать в Magagram</h1>
-    <form action="/login" method="post" class="space-y-4">
-        <input name="username" placeholder="Username" required class="w-full p-3 bg-[#242f3d] rounded">
-        <input name="fullname" placeholder="ФИО" required class="w-full p-3 bg-[#242f3d] rounded">
-        <input name="bio" placeholder="О себе" class="w-full p-3 bg-[#242f3d] rounded">
-        <input name="birthday" placeholder="Дата рождения (ДД.ММ.ГГ)" class="w-full p-3 bg-[#242f3d] rounded">
-        <button type="submit" class="w-full bg-blue-600 p-3 rounded font-bold">Войти / Регистрация</button>
+<body class="flex items-center justify-center h-screen">
+    <form action="/login" method="post" class="w-full max-w-sm p-6 space-y-4">
+        <h2 class="text-2xl text-center font-bold">Magagrame</h2>
+        <input name="username" placeholder="Username (eng)" required class="w-full p-3 bg-[#242f3d] rounded border border-gray-600">
+        <input name="fullname" placeholder="Ваше имя" required class="w-full p-3 bg-[#242f3d] rounded border border-gray-600">
+        <input name="bio" placeholder="О себе" class="w-full p-3 bg-[#242f3d] rounded border border-gray-600">
+        <input name="birthday" placeholder="Дата рождения" class="w-full p-3 bg-[#242f3d] rounded border border-gray-600">
+        <button type="submit" class="w-full bg-blue-600 p-3 rounded font-bold">Войти</button>
     </form>
 </body>
 </html>

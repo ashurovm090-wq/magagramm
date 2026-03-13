@@ -2,28 +2,36 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>body { background-color: #0f1621; color: white; height: 100vh; display: flex; flex-direction: column; }</style>
+    <style>body{background:#0f1621;color:white;}</style>
 </head>
-<body>
-    <main id="messages" class="flex-1 p-4 overflow-y-auto space-y-2"></main>
-    <div class="p-3 bg-[#17212b] border-t border-gray-700 flex gap-2">
-        <input type="text" id="messageText" class="flex-1 p-2 bg-[#242f3d] rounded-lg" placeholder="Сообщение...">
-        <button onclick="sendMessage()" class="bg-blue-600 px-4 rounded-lg">Отпр.</button>
+<body class="h-screen flex flex-col">
+    <div id="results" class="flex-1 p-4 space-y-2"></div>
+    
+    <div class="p-4 bg-[#17212b] border-t border-gray-700">
+        <input id="search" oninput="doSearch()" class="w-full p-2 bg-[#242f3d] rounded" placeholder="Поиск пользователей...">
     </div>
-    <nav class="bg-[#17212b] p-4 flex justify-around border-t border-gray-700">
-        <a href="/">💬 Чаты</a><a href="/profile">👤 Профиль</a>
+    
+    <nav class="p-4 flex justify-around bg-[#17212b]">
+        <a href="/">💬 Чаты</a>
+        <a href="/profile">👤 Профиль</a>
     </nav>
+
     <script>
-        const ws = new WebSocket(`wss://${window.location.host}/ws/{{ username }}`);
-        ws.onmessage = (e) => {
-            const p = document.createElement('p'); p.textContent = e.data;
-            document.getElementById('messages').appendChild(p);
-        };
-        function sendMessage() {
-            const input = document.getElementById("messageText");
-            ws.send(input.value); input.value = '';
+        async function doSearch() {
+            const query = document.getElementById('search').value;
+            if (query.length < 2) return;
+            const res = await fetch(`/search?query=${query}`);
+            const data = await res.json();
+            const resDiv = document.getElementById('results');
+            resDiv.innerHTML = '';
+            data.users.forEach(u => {
+                const btn = document.createElement('div');
+                btn.className = "p-3 bg-[#242f3d] rounded cursor-pointer";
+                btn.textContent = u;
+                btn.onclick = () => alert("Открываем чат с " + u);
+                resDiv.appendChild(btn);
+            });
         }
     </script>
 </body>

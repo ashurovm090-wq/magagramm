@@ -17,6 +17,7 @@ def init_db():
 
 init_db()
 
+# Глобальный словарь для WebSocket
 active_connections = {}
 
 @app.get("/")
@@ -53,6 +54,29 @@ async def get_profile(request: Request):
         "request": request, "username": user, 
         "bio": data[0] if data else "Привет!", "birthday": data[1] if data else "Не указана"
     })
+
+@app.get("/edit")
+async def get_edit(request: Request):
+    user = request.cookies.get("username")
+    if not user: return RedirectResponse(url="/login")
+    conn = sqlite3.connect('users.db')
+    cursor = conn.cursor()
+    cursor.execute('SELECT bio, birthday FROM users WHERE username = ?', (user,))
+    data = cursor.fetchone()
+    conn.close()
+    return templates.TemplateResponse("edit.html", {
+        "request": request, "bio": data[0] if data else "", "birthday": data[1] if data else ""
+    })
+
+@app.post("/edit")
+async def post_edit(request: Request, bio: str = Form(...), birthday: str = Form(...)):
+    user = request.cookies.get("username")
+    conn = sqlite3.connect('users.db')
+    cursor = conn.cursor()
+    cursor.execute('UPDATE users SET bio = ?, birthday = ? WHERE username = ?', (bio, birthday, user))
+    conn.commit()
+    conn.close()
+    return RedirectResponse(url="/profile", status_code=303)
 
 @app.get("/search")
 async def search_users(query: str):

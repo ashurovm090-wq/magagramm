@@ -7,21 +7,17 @@
     <style>body { background-color: #0f1621; color: white; }</style>
 </head>
 <body class="p-6 flex flex-col items-center">
-    <div class="w-32 h-32 bg-gray-700 rounded-full flex items-center justify-center text-4xl mb-4">
-        👤
-    </div>
-    
+    <div class="w-24 h-24 bg-gray-700 rounded-full flex items-center justify-center text-4xl mb-4">👤</div>
     <h1 class="text-2xl font-bold">{{ username }}</h1>
     <p class="text-gray-400 mb-6">@{{ username }}</p>
     
-    <div class="w-full bg-[#17212b] p-4 rounded-xl">
-        <p class="text-sm text-gray-500">О себе</p>
+    <div class="w-full bg-[#17212b] p-4 rounded-xl border border-gray-700">
+        <p class="text-xs text-gray-500 uppercase">О себе</p>
         <p class="mb-4">{{ bio }}</p>
-        
-        <p class="text-sm text-gray-500">Дата рождения</p>
+        <p class="text-xs text-gray-500 uppercase">Дата рождения</p>
         <p>{{ birthday }}</p>
     </div>
 
-    <a href="/" class="mt-8 bg-gray-700 px-6 py-2 rounded-lg font-bold">Назад в чаты</a>
+    <a href="/" class="mt-8 bg-[#2b5278] px-8 py-3 rounded-lg font-bold">Назад к чатам</a>
 </body>
 </html>

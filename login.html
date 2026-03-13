@@ -1,24 +1,18 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Вход в Magagrame</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body { background-color: #0f1621; color: white; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .login-card { background: #17212b; padding: 25px; border-radius: 12px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.5); width: 90%; max-width: 320px; }
-        input { width: 100%; padding: 12px; margin: 15px 0; border-radius: 8px; border: 1px solid #2b5278; background: #242f3d; color: white; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; border-radius: 8px; border: none; background: #2b5278; color: white; font-weight: bold; cursor: pointer; }
-    </style>
+    <style>body{background:#0f1621;color:white;}</style>
 </head>
-<body>
-    <div class="login-card">
-        <h2 class="text-2xl font-bold mb-4">Magagrame</h2>
-        <form action="/login" method="post">
-            <input type="text" name="username" placeholder="Username (eng)" required>
-            <button type="submit">Войти</button>
-        </form>
-    </div>
+<body class="p-6">
+    <h1 class="text-2xl mb-6">Добро пожаловать в Magagram</h1>
+    <form action="/login" method="post" class="space-y-4">
+        <input name="username" placeholder="Username" required class="w-full p-3 bg-[#242f3d] rounded">
+        <input name="fullname" placeholder="ФИО" required class="w-full p-3 bg-[#242f3d] rounded">
+        <input name="bio" placeholder="О себе" class="w-full p-3 bg-[#242f3d] rounded">
+        <input name="birthday" placeholder="Дата рождения (ДД.ММ.ГГ)" class="w-full p-3 bg-[#242f3d] rounded">
+        <button type="submit" class="w-full bg-blue-600 p-3 rounded font-bold">Войти / Регистрация</button>
+    </form>
 </body>
 </html>

@@ -39,24 +39,29 @@ async def get_login(request: Request): return templates.TemplateResponse("login.
 
 @app.post("/login")
 async def post_login(username: str = Form(...)):
+    clean_user = username.strip().lower()
     conn = sqlite3.connect('users.db')
     cursor = conn.cursor()
-    cursor.execute('INSERT OR IGNORE INTO users VALUES (?, ?, ?)', (username.strip().lower(), "Привет!", "Не указана"))
+    cursor.execute('INSERT OR IGNORE INTO users VALUES (?, ?, ?)', (clean_user, "Привет, я в Magagrame!", "Не указана"))
     conn.commit()
     conn.close()
     resp = RedirectResponse(url="/", status_code=303)
-    resp.set_cookie(key="username", value=username.strip().lower())
+    resp.set_cookie(key="username", value=clean_user)
     return resp
 
 @app.get("/profile")
 async def get_profile(request: Request):
     user = request.cookies.get("username")
+    if not user: return RedirectResponse(url="/login")
     conn = sqlite3.connect('users.db')
     cursor = conn.cursor()
     cursor.execute('SELECT bio, birthday FROM users WHERE username = ?', (user,))
     data = cursor.fetchone()
     conn.close()
-    return templates.TemplateResponse("profile.html", {"request": request, "username": user, "bio": data[0], "birthday": data[1]})
+    # Безопасная обработка данных
+    bio = data[0] if data else "Привет, я новенький!"
+    bday = data[1] if data else "Не указана"
+    return templates.TemplateResponse("profile.html", {"request": request, "username": user, "bio": bio, "birthday": bday})
 
 @app.get("/edit")
 async def get_edit(request: Request):
@@ -66,7 +71,9 @@ async def get_edit(request: Request):
     cursor.execute('SELECT bio, birthday FROM users WHERE username = ?', (user,))
     data = cursor.fetchone()
     conn.close()
-    return templates.TemplateResponse("edit.html", {"request": request, "bio": data[0], "birthday": data[1]})
+    bio = data[0] if data else ""
+    bday = data[1] if data else ""
+    return templates.TemplateResponse("edit.html", {"request": request, "bio": bio, "birthday": bday})
 
 @app.post("/edit")
 async def post_edit(request: Request, bio: str = Form(...), birthday: str = Form(...)):

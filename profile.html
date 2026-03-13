@@ -1,23 +1,14 @@
 <!DOCTYPE html>
 <html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>body { background-color: #0f1621; color: white; }</style>
-</head>
+<head><script src="https://cdn.tailwindcss.com"></script><style>body{background:#0f1621;color:white;}</style></head>
 <body class="p-6 flex flex-col items-center">
     <div class="w-24 h-24 bg-gray-700 rounded-full flex items-center justify-center text-4xl mb-4">👤</div>
     <h1 class="text-2xl font-bold">{{ username }}</h1>
-    <p class="text-gray-400 mb-6">@{{ username }}</p>
-    
-    <div class="w-full bg-[#17212b] p-4 rounded-xl border border-gray-700">
-        <p class="text-xs text-gray-500 uppercase">О себе</p>
-        <p class="mb-4">{{ bio }}</p>
-        <p class="text-xs text-gray-500 uppercase">Дата рождения</p>
-        <p>{{ birthday }}</p>
+    <div class="w-full bg-[#17212b] p-4 rounded-xl mt-4">
+        <p class="text-gray-500">О себе: {{ bio }}</p>
+        <p class="text-gray-500">День рождения: {{ birthday }}</p>
     </div>
-
-    <a href="/" class="mt-8 bg-[#2b5278] px-8 py-3 rounded-lg font-bold">Назад к чатам</a>
+    <a href="/edit" class="text-blue-400 mt-4">Редактировать</a>
+    <a href="/" class="mt-8 bg-gray-700 px-8 py-2 rounded-lg">Назад</a>
 </body>
 </html>

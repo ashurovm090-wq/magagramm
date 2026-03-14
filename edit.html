@@ -1,9 +1,12 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <body class="bg-[#0f1621] text-white p-6">
-    <form action="/update" method="post" class="space-y-4">
-        <input name="fullname" value="{{ user['fullname'] }}" class="w-full p-3 bg-[#242f3d] rounded">
-        <input name="birthday" type="date" value="{{ user['birthday'] }}" class="w-full p-3 bg-[#242f3d] rounded">
-        <textarea name="bio" class="w-full p-3 bg-[#242f3d] rounded">{{ user['bio'] or '' }}</textarea>
-        <button type="submit" class="w-full bg-blue-600 p-3 rounded">Сохранить</button>
+    <h2 class="text-xl font-bold mb-6">Редактирование</h2>
+    <form action="/login" method="post" class="space-y-4">
+        <input name="username" value="{{ user['username'] }}" readonly class="w-full p-4 bg-[#242f3d] rounded text-gray-400">
+        <input name="fullname" value="{{ user['fullname'] or '' }}" placeholder="ФИО" class="w-full p-4 bg-[#242f3d] rounded">
+        <input name="bio" value="{{ user['bio'] or '' }}" placeholder="О себе" class="w-full p-4 bg-[#242f3d] rounded">
+        <input name="birthday" type="date" value="{{ user['birthday'] or '' }}" class="w-full p-4 bg-[#242f3d] rounded">
+        
+        <button type="submit" class="w-full bg-blue-600 p-4 rounded-xl font-bold">Сохранить</button>
     </form>
 </body>

@@ -12,9 +12,16 @@
     </style>
 </head>
 <body>
+    <div class="p-4 bg-[#17212b] border-b border-gray-700">
+        <input id="search" oninput="doSearch()" class="w-full p-2 bg-[#242f3d] rounded text-sm" placeholder="Поиск пользователей...">
+        <div id="results" class="mt-2 space-y-1"></div>
+        <a href="/profile" class="text-xs text-blue-400 mt-2 block">Мой профиль</a>
+    </div>
+    
     <div id="chat"></div>
+    
     <div class="p-4 bg-[#17212b] flex gap-2">
-        <input id="msg" class="flex-1 p-2 bg-[#242f3d] rounded" placeholder="Сообщение (кому:текст)...">
+        <input id="msg" class="flex-1 p-2 bg-[#242f3d] rounded" placeholder="кому:сообщение...">
         <button onclick="send()" class="bg-blue-600 px-4 rounded font-bold">Отпр.</button>
     </div>
 
@@ -26,13 +33,27 @@
             const chat = document.getElementById('chat');
             const [sender, ...textParts] = e.data.split(': ');
             const text = textParts.join(': ');
-            
             const d = document.createElement('div');
             d.className = `msg-bubble ${sender === myName ? 'my-msg' : 'other-msg'}`;
             d.textContent = text;
             chat.appendChild(d);
             chat.scrollTop = chat.scrollHeight;
         };
+
+        async function doSearch() {
+            const q = document.getElementById('search').value;
+            if (q.length < 1) { document.getElementById('results').innerHTML = ''; return; }
+            const res = await (await fetch(`/search?query=${q}`)).json();
+            const rDiv = document.getElementById('results');
+            rDiv.innerHTML = '';
+            res.users.forEach(u => {
+                const b = document.createElement('div');
+                b.className = "text-blue-400 text-sm cursor-pointer p-1";
+                b.textContent = "@" + u;
+                b.onclick = () => { document.getElementById('msg').value = u + ":"; };
+                rDiv.appendChild(b);
+            });
+        }
 
         function send() {
             const m = document.getElementById('msg');

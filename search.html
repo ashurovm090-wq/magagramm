@@ -11,15 +11,15 @@
     
     <div class="space-y-4">
         {% for u in users %}
-        <div class="bg-[#17212b] p-4 rounded-xl flex items-center space-x-4">
-            <div class="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center font-bold text-xl">
+        <a href="/chat/{{ u['username'] }}" class="bg-[#17212b] p-4 rounded-xl flex items-center space-x-4 active:bg-[#202b36] transition-colors block">
+            <div class="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center font-bold text-xl uppercase">
                 {{ u['fullname'][0] if u['fullname'] else '?' }}
             </div>
             <div>
                 <p class="font-bold">{{ u['fullname'] }}</p>
                 <p class="text-gray-400 text-sm">@{{ u['username'] }}</p>
             </div>
-        </div>
+        </a>
         {% endfor %}
     </div>
 

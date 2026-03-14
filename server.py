@@ -7,7 +7,6 @@ import uvicorn
 app = FastAPI()
 templates = Jinja2Templates(directory=".")
 
-# База данных
 def get_db_conn():
     conn = sqlite3.connect('users.db')
     conn.row_factory = sqlite3.Row
@@ -16,12 +15,11 @@ def get_db_conn():
 @app.on_event("startup")
 async def startup():
     conn = get_db_conn()
+    # Создаем таблицу с датой рождения
     conn.execute('''CREATE TABLE IF NOT EXISTS users 
                     (username TEXT PRIMARY KEY, fullname TEXT, bio TEXT, birthday TEXT)''')
     conn.commit()
     conn.close()
-
-active_connections = {}
 
 # --- РОУТЫ ---
 
@@ -32,8 +30,7 @@ async def get_index(request: Request):
     return templates.TemplateResponse("index.html", {"request": request, "username": user})
 
 @app.get("/login")
-async def get_login(request: Request): 
-    return templates.TemplateResponse("login.html", {"request": request})
+async def get_login(request: Request): return templates.TemplateResponse("login.html", {"request": request})
 
 @app.post("/login")
 async def post_login(username: str = Form(...), fullname: str = Form(...), bio: str = Form(...), birthday: str = Form(...)):
@@ -64,29 +61,13 @@ async def get_edit(request: Request):
     return templates.TemplateResponse("edit.html", {"request": request, "user": user_data})
 
 @app.post("/update_profile")
-async def update_profile(request: Request, fullname: str = Form(...), bio: str = Form(...)):
+async def update_profile(request: Request, fullname: str = Form(...), bio: str = Form(...), birthday: str = Form(...)):
     user = request.cookies.get("username")
     conn = get_db_conn()
-    conn.execute('UPDATE users SET fullname=?, bio=? WHERE username=?', (fullname, bio, user))
+    conn.execute('UPDATE users SET fullname=?, bio=?, birthday=? WHERE username=?', (fullname, bio, birthday, user))
     conn.commit()
     conn.close()
     return RedirectResponse(url="/profile", status_code=303)
-
-# WebSocket чат
-@app.websocket("/ws/{username}")
-async def ws_endpoint(websocket: WebSocket, username: str):
-    await websocket.accept()
-    active_connections[username] = websocket
-    try:
-        while True:
-            data = await websocket.receive_text()
-            if ":" in data:
-                to_user, msg = data.split(":", 1)
-                if to_user in active_connections:
-                    await active_connections[to_user].send_text(f"{username}: {msg}")
-                await websocket.send_text(f"{username}: {msg}")
-    except WebSocketDisconnect:
-        del active_connections[username]
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=10000)

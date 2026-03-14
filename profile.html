@@ -1,33 +1,13 @@
+<script src="https://cdn.tailwindcss.com"></script>
 <body class="bg-[#0f1621] text-white p-6">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <div class="text-center mt-10">
-        <h2 class="text-2xl font-bold">Профиль</h2>
-        
-        <div class="mt-8 text-left bg-[#17212b] p-6 rounded-2xl space-y-4">
-            <div>
-                <p class="text-gray-500 text-xs">Username</p>
-                <p class="text-lg">@{{ user['username'] }}</p>
-            </div>
-            <div>
-                <p class="text-gray-500 text-xs">ФИО</p>
-                <p class="text-lg">{{ user['fullname'] or 'Не указано' }}</p>
-            </div>
-            <div>
-                <p class="text-gray-500 text-xs">Дата рождения</p>
-                <p class="text-lg">{{ user['birthday'] or 'Не указано' }}</p>
-            </div>
-            <div>
-                <p class="text-gray-500 text-xs">О себе</p>
-                <p class="text-lg">{{ user['bio'] or 'Пусто' }}</p>
-            </div>
-        </div>
-        
-        <a href="/edit" class="mt-8 block text-blue-400 font-bold underline">Редактировать профиль</a>
+    <div class="text-center">
+        <img src="/static/icon.png" class="w-24 h-24 mx-auto rounded-full mb-4">
+        <h1 class="text-2xl font-bold">{{ user['fullname'] }}</h1>
+        <p class="text-gray-400">@{{ user['username'] }}</p>
     </div>
-
-    <div class="fixed bottom-0 left-0 w-full h-16 bg-[#17212b] flex justify-around items-center border-t border-gray-700">
-        <a href="/">💬 Чаты</a>
-        <a href="/search">🔍 Поиск</a>
-        <a href="/profile">👤 Профиль</a>
+    
+    <div class="mt-6 bg-[#17212b] p-4 rounded-xl space-y-2">
+        <p><strong>О себе:</strong> {{ user['bio'] }}</p>
+        <p><strong>Дата рождения:</strong> {{ user['birthday'] }}</p>
     </div>
 </body>

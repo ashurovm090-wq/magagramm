@@ -1,6 +1,13 @@
-<script src="https://cdn.tailwindcss.com"></script>
-<body class="bg-[#0f1621] text-white p-6">
-    <img src="/static/icon.png" class="w-20 h-20 mx-auto mb-6 rounded-2xl">
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magagram - Вход</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-[#0f1621] text-white p-6 min-h-screen pb-24">
+    <img src="/static/icon.png" class="w-20 h-20 mx-auto mb-6 rounded-2xl" alt="Logo">
     
     <form action="/login" method="post" class="space-y-4">
         <input name="username" placeholder="Username" required class="w-full p-3 bg-[#242f3d] rounded">
@@ -9,9 +16,11 @@
         <input name="birthday" type="date" class="w-full p-3 bg-[#242f3d] rounded">
         <button type="submit" class="w-full bg-blue-600 p-3 rounded font-bold">Войти / Регистрация</button>
     </form>
-<div class="fixed bottom-0 w-full bg-[#17212b] p-4 flex justify-around border-t border-gray-700">
-    <a href="/" class="text-gray-400">💬 Чаты</a>
-    <a href="/search" class="text-gray-400">🔍 Поиск</a>
-    <a href="/profile" class="text-gray-400">👤 Профиль</a>
-</div>
+
+    <div class="fixed bottom-0 left-0 w-full bg-[#17212b] p-4 flex justify-around border-t border-gray-700">
+        <a href="/" class="text-gray-400 text-sm">💬 Чаты</a>
+        <a href="/search" class="text-gray-400 text-sm">🔍 Поиск</a>
+        <a href="/profile" class="text-gray-400 text-sm">👤 Профиль</a>
+    </div>
 </body>
+</html>

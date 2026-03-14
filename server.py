@@ -9,17 +9,18 @@ app = FastAPI()
 app.mount("/static", StaticFiles(directory="."), name="static")
 templates = Jinja2Templates(directory=".")
 
+# --- Инициализация базы данных (выполняется один раз при старте) ---
 def get_db():
     conn = sqlite3.connect('users.db')
     conn.row_factory = sqlite3.Row
     return conn
 
-# Инициализация БД при запуске (простой и надежный способ)
 conn = get_db()
 conn.execute('CREATE TABLE IF NOT EXISTS users (username TEXT PRIMARY KEY, fullname TEXT, bio TEXT, birthday TEXT)')
 conn.execute('CREATE TABLE IF NOT EXISTS messages (id INTEGER PRIMARY KEY AUTOINCREMENT, sender TEXT, receiver TEXT, text TEXT)')
 conn.commit()
 conn.close()
+# -------------------------------------------------------------------
 
 @app.get("/")
 def index(request: Request):
@@ -66,7 +67,7 @@ def get_chat(request: Request, interlocutor: str):
     return templates.TemplateResponse("chat.html", {"request": request, "messages": msgs, "receiver": interlocutor, "me": user})
 
 @app.post("/send_message")
-def send_msg(receiver: str = Form(...), text: str = Form(...)):
+def send_msg(receiver: str = Form(...), text: str = Form(...), request: Request = None):
     user = request.cookies.get("username")
     if not user: return RedirectResponse(url="/")
     conn = get_db()
@@ -76,8 +77,9 @@ def send_msg(receiver: str = Form(...), text: str = Form(...)):
     return RedirectResponse(url=f"/chat/{receiver}", status_code=303)
 
 @app.post("/update_profile")
-def update_profile(fullname: str = Form(...), bio: str = Form(...), birthday: str = Form(...), request: Request = None):
+def update_profile(request: Request, fullname: str = Form(...), bio: str = Form(...), birthday: str = Form(...)):
     user = request.cookies.get("username")
+    if not user: return RedirectResponse(url="/")
     conn = get_db()
     conn.execute('UPDATE users SET fullname = ?, bio = ?, birthday = ? WHERE username = ?', (fullname, bio, birthday, user))
     conn.commit()

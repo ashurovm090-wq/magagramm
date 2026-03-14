@@ -1,18 +1,29 @@
-<script src="https://cdn.tailwindcss.com"></script>
-<body class="bg-[#0f1621] text-white p-6">
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мой профиль</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-[#0f1621] text-white p-6 min-h-screen pb-24">
+    
     <div class="text-center">
-        <img src="/static/icon.png" class="w-24 h-24 mx-auto rounded-full mb-4">
+        <img src="/static/icon.png" class="w-24 h-24 mx-auto rounded-full mb-4" alt="Аватар">
         <h1 class="text-2xl font-bold">{{ user['fullname'] }}</h1>
         <p class="text-gray-400">@{{ user['username'] }}</p>
+        <a href="/edit" class="text-blue-400 text-sm mt-2 block">Редактировать</a>
     </div>
     
     <div class="mt-6 bg-[#17212b] p-4 rounded-xl space-y-2">
         <p><strong>О себе:</strong> {{ user['bio'] }}</p>
         <p><strong>Дата рождения:</strong> {{ user['birthday'] }}</p>
     </div>
-<div class="fixed bottom-0 w-full bg-[#17212b] p-4 flex justify-around border-t border-gray-700">
-    <a href="/" class="text-gray-400">💬 Чаты</a>
-    <a href="/search" class="text-gray-400">🔍 Поиск</a>
-    <a href="/profile" class="text-gray-400">👤 Профиль</a>
-</div>
+
+    <div class="fixed bottom-0 left-0 w-full bg-[#17212b] p-4 flex justify-around border-t border-gray-700">
+        <a href="/" class="text-gray-400 text-sm">💬 Чаты</a>
+        <a href="/search" class="text-gray-400 text-sm">🔍 Поиск</a>
+        <a href="/profile" class="text-gray-400 text-sm">👤 Профиль</a>
+    </div>
 </body>
+</html>

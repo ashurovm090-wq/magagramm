@@ -1,17 +1,18 @@
-<script src="https://cdn.tailwindcss.com"></script>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
 <body class="bg-[#0f1621] text-white p-6">
     <h2 class="text-xl font-bold mb-6">Редактирование</h2>
     <form action="/login" method="post" class="space-y-4">
-        <input name="username" value="{{ user['username'] }}" readonly class="w-full p-4 bg-[#242f3d] rounded text-gray-400">
-        <input name="fullname" value="{{ user['fullname'] or '' }}" placeholder="ФИО" class="w-full p-4 bg-[#242f3d] rounded">
-        <input name="bio" value="{{ user['bio'] or '' }}" placeholder="О себе" class="w-full p-4 bg-[#242f3d] rounded">
-        <input name="birthday" type="date" value="{{ user['birthday'] or '' }}" class="w-full p-4 bg-[#242f3d] rounded">
-        
-        <button type="submit" class="w-full bg-blue-600 p-4 rounded-xl font-bold">Сохранить</button>
-    </form>
-<div class="fixed bottom-0 w-full bg-[#17212b] p-4 flex justify-around border-t border-gray-700">
-    <a href="/" class="text-gray-400">💬 Чаты</a>
-    <a href="/search" class="text-gray-400">🔍 Поиск</a>
-    <a href="/profile" class="text-gray-400">👤 Профиль</a>
-</div>
+        </form>
+    
+    <div class="fixed bottom-0 w-full bg-[#17212b] p-4 flex justify-around border-t border-gray-700">
+        <a href="/" class="text-gray-400">💬 Чаты</a>
+        <a href="/search" class="text-gray-400">🔍 Поиск</a>
+        <a href="/profile" class="text-gray-400">👤 Профиль</a>
+    </div>
 </body>
+</html>

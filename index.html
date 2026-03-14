@@ -5,60 +5,57 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { background: #0f1621; color: white; height: 100vh; display: flex; flex-direction: column; }
-        #chat { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
-        .msg-bubble { max-width: 80%; padding: 10px 14px; border-radius: 18px; font-size: 15px; }
-        .my-msg { align-self: flex-end; background: #2b5278; border-bottom-right-radius: 4px; }
-        .other-msg { align-self: flex-start; background: #242f3d; border-bottom-left-radius: 4px; }
+        .tab-content { display: none; flex: 1; overflow-y: auto; }
+        .active { display: flex; flex-direction: column; }
+        /* Пузыри чата */
+        .msg-bubble { max-width: 80%; padding: 10px 14px; border-radius: 18px; margin: 5px; }
+        .my-msg { align-self: flex-end; background: #2b5278; }
+        .other-msg { align-self: flex-start; background: #242f3d; }
     </style>
 </head>
 <body>
-    <div class="p-4 bg-[#17212b] border-b border-gray-700">
-        <input id="search" oninput="doSearch()" class="w-full p-2 bg-[#242f3d] rounded text-sm" placeholder="Поиск пользователей...">
-        <div id="results" class="mt-2 space-y-1"></div>
-        <a href="/profile" class="text-xs text-blue-400 mt-2 block">Мой профиль</a>
+
+    <div id="chats-tab" class="tab-content active p-4">
+        <h2 class="text-xl mb-4">Чаты</h2>
+        <div id="chat-list" class="space-y-2"></div>
     </div>
-    
-    <div id="chat"></div>
-    
-    <div class="p-4 bg-[#17212b] flex gap-2">
-        <input id="msg" class="flex-1 p-2 bg-[#242f3d] rounded" placeholder="кому:сообщение...">
-        <button onclick="send()" class="bg-blue-600 px-4 rounded font-bold">Отпр.</button>
+
+    <div id="search-tab" class="tab-content p-4">
+        <input id="search" oninput="doSearch()" class="w-full p-2 bg-[#242f3d] rounded" placeholder="Найти друга...">
+        <div id="results" class="mt-4 space-y-2"></div>
+    </div>
+
+    <div id="profile-tab" class="tab-content p-4 text-center">
+        <h2 class="text-xl">Мой профиль</h2>
+        <a href="/edit" class="text-blue-400">Редактировать</a>
+    </div>
+
+    <div class="h-16 bg-[#17212b] border-t border-gray-700 flex justify-around items-center">
+        <button onclick="showTab('chats-tab')">💬 Чаты</button>
+        <button onclick="showTab('search-tab')">🔍 Поиск</button>
+        <button onclick="showTab('profile-tab')">👤 Профиль</button>
     </div>
 
     <script>
-        const myName = "{{ username }}";
-        const ws = new WebSocket(`wss://${window.location.host}/ws/${myName}`);
-        
-        ws.onmessage = (e) => {
-            const chat = document.getElementById('chat');
-            const [sender, ...textParts] = e.data.split(': ');
-            const text = textParts.join(': ');
-            const d = document.createElement('div');
-            d.className = `msg-bubble ${sender === myName ? 'my-msg' : 'other-msg'}`;
-            d.textContent = text;
-            chat.appendChild(d);
-            chat.scrollTop = chat.scrollHeight;
-        };
+        function showTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+        }
 
         async function doSearch() {
             const q = document.getElementById('search').value;
-            if (q.length < 1) { document.getElementById('results').innerHTML = ''; return; }
+            if(q.length < 2) return;
             const res = await (await fetch(`/search?query=${q}`)).json();
             const rDiv = document.getElementById('results');
             rDiv.innerHTML = '';
             res.users.forEach(u => {
-                const b = document.createElement('div');
-                b.className = "text-blue-400 text-sm cursor-pointer p-1";
-                b.textContent = "@" + u;
-                b.onclick = () => { document.getElementById('msg').value = u + ":"; };
-                rDiv.appendChild(b);
+                rDiv.innerHTML += `<div class="p-3 bg-[#242f3d] rounded cursor-pointer" onclick="openChat('${u}')">@${u}</div>`;
             });
         }
 
-        function send() {
-            const m = document.getElementById('msg');
-            ws.send(m.value);
-            m.value = '';
+        function openChat(username) {
+            // Тут мы будем открывать экран чата конкретно с этим человеком
+            alert("Открываем чат с " + username);
         }
     </script>
 </body>

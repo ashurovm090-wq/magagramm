@@ -1,62 +1,6 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body { background: #0f1621; color: white; height: 100vh; display: flex; flex-direction: column; }
-        .tab-content { display: none; flex: 1; overflow-y: auto; }
-        .active { display: flex; flex-direction: column; }
-        /* Пузыри чата */
-        .msg-bubble { max-width: 80%; padding: 10px 14px; border-radius: 18px; margin: 5px; }
-        .my-msg { align-self: flex-end; background: #2b5278; }
-        .other-msg { align-self: flex-start; background: #242f3d; }
-    </style>
-</head>
-<body>
-
-    <div id="chats-tab" class="tab-content active p-4">
-        <h2 class="text-xl mb-4">Чаты</h2>
-        <div id="chat-list" class="space-y-2"></div>
-    </div>
-
-    <div id="search-tab" class="tab-content p-4">
-        <input id="search" oninput="doSearch()" class="w-full p-2 bg-[#242f3d] rounded" placeholder="Найти друга...">
-        <div id="results" class="mt-4 space-y-2"></div>
-    </div>
-
-    <div id="profile-tab" class="tab-content p-4 text-center">
-        <h2 class="text-xl">Мой профиль</h2>
-        <a href="/edit" class="text-blue-400">Редактировать</a>
-    </div>
-
-    <div class="h-16 bg-[#17212b] border-t border-gray-700 flex justify-around items-center">
-        <button onclick="showTab('chats-tab')">💬 Чаты</button>
-        <button onclick="showTab('search-tab')">🔍 Поиск</button>
-        <button onclick="showTab('profile-tab')">👤 Профиль</button>
-    </div>
-
-    <script>
-        function showTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
-        }
-
-        async function doSearch() {
-            const q = document.getElementById('search').value;
-            if(q.length < 2) return;
-            const res = await (await fetch(`/search?query=${q}`)).json();
-            const rDiv = document.getElementById('results');
-            rDiv.innerHTML = '';
-            res.users.forEach(u => {
-                rDiv.innerHTML += `<div class="p-3 bg-[#242f3d] rounded cursor-pointer" onclick="openChat('${u}')">@${u}</div>`;
-            });
-        }
-
-        function openChat(username) {
-            // Тут мы будем открывать экран чата конкретно с этим человеком
-            alert("Открываем чат с " + username);
-        }
-    </script>
+<script src="https://cdn.tailwindcss.com"></script>
+<body class="bg-[#0f1621] text-white p-6 text-center">
+    <img src="/static/icon.png" class="w-32 h-32 mx-auto rounded-3xl mb-8">
+    <h1 class="text-3xl font-bold mb-4">Добро пожаловать в Magagram</h1>
+    <a href="/login" class="bg-blue-600 px-8 py-3 rounded-xl font-bold block">Войти в систему</a>
 </body>
-</html>

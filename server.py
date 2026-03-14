@@ -20,27 +20,41 @@ def startup():
     conn.commit()
     conn.close()
 
-# Главная — теперь перекидывает в профиль, если юзер залогинен
 @app.get("/")
 def index(request: Request):
     user = request.cookies.get("username")
-    if user:
-        return RedirectResponse(url="/profile")
+    if user: return RedirectResponse(url="/profile")
     return templates.TemplateResponse("login.html", {"request": request})
 
-# Обработка входа/регистрации
 @app.post("/login")
-def login(username: str = Form(...), fullname: str = Form(None), bio: str = Form(None), birthday: str = Form(None)):
+def login(username: str = Form(...)):
+    username = username.lower().strip()
     conn = get_db()
-    conn.execute('INSERT OR REPLACE INTO users (username, fullname, bio, birthday) VALUES (?, ?, ?, ?)', 
-                 (username.lower(), fullname, bio, birthday))
-    conn.commit()
+    # Проверяем, есть ли юзер, если нет - создаем пустую запись
+    user_exists = conn.execute("SELECT * FROM users WHERE username = ?", (username,)).fetchone()
+    if not user_exists:
+        conn.execute('INSERT INTO users (username, fullname, bio, birthday) VALUES (?, ?, ?, ?)', 
+                     (username, username, "", ""))
+        conn.commit()
     conn.close()
+    
     resp = RedirectResponse(url="/profile", status_code=303)
-    resp.set_cookie(key="username", value=username.lower())
+    resp.set_cookie(key="username", value=username)
     return resp
 
-# Профиль
+# НОВЫЙ МЕТОД ДЛЯ СОХРАНЕНИЯ ДАННЫХ
+@app.post("/update_profile")
+def update_profile(request: Request, fullname: str = Form(...), bio: str = Form(...), birthday: str = Form(...)):
+    user = request.cookies.get("username")
+    if not user: return RedirectResponse(url="/")
+    
+    conn = get_db()
+    conn.execute('UPDATE users SET fullname = ?, bio = ?, birthday = ? WHERE username = ?', 
+                 (fullname, bio, birthday, user))
+    conn.commit()
+    conn.close()
+    return RedirectResponse(url="/profile", status_code=303)
+
 @app.get("/profile")
 def profile(request: Request):
     user = request.cookies.get("username")
@@ -50,7 +64,6 @@ def profile(request: Request):
     conn.close()
     return templates.TemplateResponse("profile.html", {"request": request, "user": u})
 
-# Поиск — новый маршрут
 @app.get("/search")
 def search(request: Request):
     conn = get_db()
@@ -58,7 +71,6 @@ def search(request: Request):
     conn.close()
     return templates.TemplateResponse("search.html", {"request": request, "users": all_users})
 
-# Редактирование — новый маршрут
 @app.get("/edit")
 def edit_page(request: Request):
     user = request.cookies.get("username")

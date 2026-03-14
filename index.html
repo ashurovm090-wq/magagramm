@@ -1,19 +1,21 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>body{background:#0f1621;color:white;}</style>
+    <style>
+        body { background: #0f1621; color: white; height: 100vh; display: flex; flex-direction: column; }
+        #chat { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+        .msg-bubble { max-width: 80%; padding: 10px 14px; border-radius: 18px; font-size: 15px; }
+        .my-msg { align-self: flex-end; background: #2b5278; border-bottom-right-radius: 4px; }
+        .other-msg { align-self: flex-start; background: #242f3d; border-bottom-left-radius: 4px; }
+    </style>
 </head>
-<body class="h-screen flex flex-col">
-    <div class="p-4 bg-[#17212b]">
-        <input id="search" oninput="doSearch()" class="w-full p-2 bg-[#242f3d] rounded" placeholder="Найти юзера...">
-        <div id="results" class="mt-2 space-y-1"></div>
-    </div>
-    
-    <div id="chat" class="flex-1 p-4 overflow-y-auto space-y-2"></div>
+<body>
+    <div id="chat"></div>
     <div class="p-4 bg-[#17212b] flex gap-2">
-        <input id="msg" class="flex-1 p-2 bg-[#242f3d] rounded" placeholder="Сообщение...">
-        <button onclick="send()" class="bg-blue-600 px-4 rounded">Отпр.</button>
+        <input id="msg" class="flex-1 p-2 bg-[#242f3d] rounded" placeholder="Сообщение (кому:текст)...">
+        <button onclick="send()" class="bg-blue-600 px-4 rounded font-bold">Отпр.</button>
     </div>
 
     <script>
@@ -21,28 +23,21 @@
         const ws = new WebSocket(`wss://${window.location.host}/ws/${myName}`);
         
         ws.onmessage = (e) => {
+            const chat = document.getElementById('chat');
+            const [sender, ...textParts] = e.data.split(': ');
+            const text = textParts.join(': ');
+            
             const d = document.createElement('div');
-            d.textContent = e.data;
-            document.getElementById('chat').appendChild(d);
+            d.className = `msg-bubble ${sender === myName ? 'my-msg' : 'other-msg'}`;
+            d.textContent = text;
+            chat.appendChild(d);
+            chat.scrollTop = chat.scrollHeight;
         };
-
-        async function doSearch() {
-            const q = document.getElementById('search').value;
-            const res = await (await fetch(`/search?query=${q}`)).json();
-            const rDiv = document.getElementById('results');
-            rDiv.innerHTML = '';
-            res.users.forEach(u => {
-                const b = document.createElement('div');
-                b.className = "text-blue-400 cursor-pointer";
-                b.textContent = "@" + u;
-                b.onclick = () => { document.getElementById('msg').value = u + ":"; };
-                rDiv.appendChild(b);
-            });
-        }
 
         function send() {
             const m = document.getElementById('msg');
-            ws.send(m.value); m.value = '';
+            ws.send(m.value);
+            m.value = '';
         }
     </script>
 </body>

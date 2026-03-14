@@ -1,18 +1,36 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Редактировать профиль</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-[#0f1621] text-white p-6">
-    <h2 class="text-xl font-bold mb-6">Редактирование</h2>
-    <form action="/login" method="post" class="space-y-4">
-        </form>
+<body class="bg-[#0f1621] text-white p-6 min-h-screen pb-24">
+    <h2 class="text-xl font-bold mb-6 text-center">Редактирование</h2>
     
-    <div class="fixed bottom-0 w-full bg-[#17212b] p-4 flex justify-around border-t border-gray-700">
-        <a href="/" class="text-gray-400">💬 Чаты</a>
-        <a href="/search" class="text-gray-400">🔍 Поиск</a>
-        <a href="/profile" class="text-gray-400">👤 Профиль</a>
+    <form action="/update_profile" method="post" class="space-y-4">
+        <div>
+            <label class="text-gray-400 text-sm ml-1">ФИО</label>
+            <input name="fullname" value="{{ user['fullname'] }}" class="w-full p-3 bg-[#242f3d] rounded-xl outline-none border border-gray-700 focus:border-blue-500">
+        </div>
+        <div>
+            <label class="text-gray-400 text-sm ml-1">О себе</label>
+            <input name="bio" value="{{ user['bio'] }}" class="w-full p-3 bg-[#242f3d] rounded-xl outline-none border border-gray-700 focus:border-blue-500">
+        </div>
+        <div>
+            <label class="text-gray-400 text-sm ml-1">Дата рождения</label>
+            <input name="birthday" type="date" value="{{ user['birthday'] }}" class="w-full p-3 bg-[#242f3d] rounded-xl outline-none border border-gray-700 focus:border-blue-500 text-white">
+        </div>
+        <button type="submit" class="w-full bg-blue-600 p-4 rounded-xl font-bold mt-4 shadow-lg shadow-blue-900/20 active:scale-95 transition-transform">
+            Сохранить изменения
+        </button>
+    </form>
+
+    <div class="fixed bottom-0 left-0 w-full bg-[#17212b] p-4 flex justify-around border-t border-gray-700">
+        <a href="/" class="text-gray-400 text-sm text-center">💬<br>Чаты</a>
+        <a href="/search" class="text-gray-400 text-sm text-center">🔍<br>Поиск</a>
+        <a href="/profile" class="text-blue-400 text-sm text-center font-bold">👤<br>Профиль</a>
     </div>
 </body>
 </html>

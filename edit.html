@@ -1,27 +1,11 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <title>Редактирование</title>
-</head>
 <body class="bg-[#0f1621] text-white p-6">
-    <h2 class="text-xl mb-6 font-bold">Редактирование профиля</h2>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <h2 class="text-xl mb-6 font-bold">Редактирование</h2>
     <form action="/update_profile" method="post" class="space-y-4">
-        <div>
-            <label class="text-xs text-gray-500">Username</label>
-            <input type="text" value="{{ user['username'] if user else '' }}" disabled class="w-full p-4 bg-[#242f3d] rounded text-gray-400">
-        </div>
-        <div>
-            <label class="text-xs text-gray-500">ФИО</label>
-            <input name="fullname" value="{{ user['fullname'] if user else '' }}" class="w-full p-4 bg-[#242f3d] rounded text-white border border-gray-600 focus:border-blue-500 outline-none">
-        </div>
-        <div>
-            <label class="text-xs text-gray-500">О себе</label>
-            <textarea name="bio" class="w-full p-4 bg-[#242f3d] rounded text-white h-24">{{ user['bio'] if user else '' }}</textarea>
-        </div>
-        <button type="submit" class="w-full bg-blue-600 p-4 rounded-xl font-bold text-lg mt-4">Сохранить изменения</button>
+        <input type="text" value="{{ user['username'] }}" disabled class="w-full p-4 bg-[#242f3d] rounded text-gray-400">
+        <input name="fullname" value="{{ user['fullname'] }}" placeholder="ФИО" class="w-full p-4 bg-[#242f3d] rounded text-white">
+        <input type="date" name="birthday" value="{{ user['birthday'] }}" class="w-full p-4 bg-[#242f3d] rounded text-white">
+        <textarea name="bio" class="w-full p-4 bg-[#242f3d] rounded text-white">{{ user['bio'] }}</textarea>
+        <button type="submit" class="w-full bg-blue-600 p-4 rounded-xl font-bold">Сохранить</button>
     </form>
 </body>
-</html>

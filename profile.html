@@ -1,8 +1,9 @@
 <body class="bg-[#0f1621] text-white p-6">
     <div class="text-center">
-        <div class="w-24 h-24 bg-gray-700 rounded-full mx-auto mb-4 flex items-center justify-center text-3xl">👤</div>
-        <h2 class="text-2xl font-bold">{{ user[1] }}</h2> <p class="text-gray-400">@{{ user[0] }}</p>
-        <p class="mt-4 p-3 bg-[#17212b] rounded">{{ user[2] }}</p> <a href="/edit" class="mt-6 block text-blue-400 font-bold">Редактировать профиль</a>
+        <h2 class="text-2xl font-bold">Имя: {{ user[1] if user else 'Нет данных' }}</h2>
+        <p class="text-gray-400">@{{ user[0] if user else '?' }}</p>
+        <p class="mt-4 p-3 bg-[#17212b] rounded">Bio: {{ user[2] if user else 'Пусто' }}</p>
+        <a href="/edit" class="mt-6 block text-blue-400 font-bold">Редактировать профиль</a>
     </div>
     <div class="fixed bottom-0 left-0 w-full h-16 bg-[#17212b] flex justify-around items-center border-t border-gray-700">
         <a href="/">💬 Чаты</a>

@@ -9,7 +9,7 @@ app = FastAPI()
 app.mount("/static", StaticFiles(directory="."), name="static")
 templates = Jinja2Templates(directory=".")
 
-# --- Инициализация базы данных (выполняется один раз при старте) ---
+# --- Инициализация базы данных ---
 def get_db():
     conn = sqlite3.connect('users.db')
     conn.row_factory = sqlite3.Row
@@ -20,7 +20,6 @@ conn.execute('CREATE TABLE IF NOT EXISTS users (username TEXT PRIMARY KEY, fulln
 conn.execute('CREATE TABLE IF NOT EXISTS messages (id INTEGER PRIMARY KEY AUTOINCREMENT, sender TEXT, receiver TEXT, text TEXT)')
 conn.commit()
 conn.close()
-# -------------------------------------------------------------------
 
 @app.get("/")
 def index(request: Request):
@@ -41,7 +40,15 @@ def login(username: str = Form(...)):
     return resp
 
 @app.get("/profile")
-def @app.get("/edit")
+def profile(request: Request):
+    user = request.cookies.get("username")
+    if not user: return RedirectResponse(url="/")
+    conn = get_db()
+    u = conn.execute("SELECT * FROM users WHERE username = ?", (user,)).fetchone()
+    conn.close()
+    return templates.TemplateResponse("profile.html", {"request": request, "user": u})
+
+@app.get("/edit")
 def edit_page(request: Request):
     user = request.cookies.get("username")
     if not user: return RedirectResponse(url="/")
@@ -49,13 +56,6 @@ def edit_page(request: Request):
     u = conn.execute("SELECT * FROM users WHERE username = ?", (user,)).fetchone()
     conn.close()
     return templates.TemplateResponse("edit.html", {"request": request, "user": u})
-   (request: Request):
-    user = request.cookies.get("username")
-    if not user: return RedirectResponse(url="/")
-    conn = get_db()
-    u = conn.execute("SELECT * FROM users WHERE username = ?", (user,)).fetchone()
-    conn.close()
-    return templates.TemplateResponse("profile.html", {"request": request, "user": u})
 
 @app.get("/search")
 def search(request: Request):

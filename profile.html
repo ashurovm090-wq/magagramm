@@ -1,14 +1,12 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head><script src="https://cdn.tailwindcss.com"></script><style>body{background:#0f1621;color:white;}</style></head>
-<body class="p-6 flex flex-col items-center">
-    <div class="w-24 h-24 bg-gray-700 rounded-full flex items-center justify-center text-4xl mb-4">👤</div>
-    <h1 class="text-2xl font-bold">{{ username }}</h1>
-    <div class="w-full bg-[#17212b] p-4 rounded-xl mt-4">
-        <p class="text-gray-500">О себе: {{ bio }}</p>
-        <p class="text-gray-500">День рождения: {{ birthday }}</p>
+<body class="bg-[#0f1621] text-white p-6">
+    <div class="text-center">
+        <div class="w-24 h-24 bg-gray-700 rounded-full mx-auto mb-4 flex items-center justify-center text-3xl">👤</div>
+        <h2 class="text-2xl font-bold">{{ user[1] }}</h2> <p class="text-gray-400">@{{ user[0] }}</p>
+        <p class="mt-4 p-3 bg-[#17212b] rounded">{{ user[2] }}</p> <a href="/edit" class="mt-6 block text-blue-400 font-bold">Редактировать профиль</a>
     </div>
-    <a href="/edit" class="text-blue-400 mt-4">Редактировать</a>
-    <a href="/" class="mt-8 bg-gray-700 px-8 py-2 rounded-lg">Назад</a>
+    <div class="fixed bottom-0 left-0 w-full h-16 bg-[#17212b] flex justify-around items-center border-t border-gray-700">
+        <a href="/">💬 Чаты</a>
+        <a href="/search">🔍 Поиск</a>
+        <a href="/profile">👤 Профиль</a>
+    </div>
 </body>
-</html>

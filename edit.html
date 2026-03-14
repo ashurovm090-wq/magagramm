@@ -1,8 +1,11 @@
 <body class="bg-[#0f1621] text-white p-6">
-    <h2 class="text-xl mb-6">Редактировать</h2>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <h2 class="text-xl mb-6">Редактирование профиля</h2>
     <form action="/update_profile" method="post" class="space-y-4">
-        <input name="fullname" value="{{ user[1] }}" class="w-full p-3 bg-[#242f3d] rounded">
-        <input name="bio" value="{{ user[2] }}" class="w-full p-3 bg-[#242f3d] rounded">
+        <label class="block text-sm text-gray-400">ФИО</label>
+        <input name="fullname" value="{{ user[1] or '' }}" class="w-full p-3 bg-[#242f3d] rounded text-white">
+        <label class="block text-sm text-gray-400">О себе</label>
+        <input name="bio" value="{{ user[2] or '' }}" class="w-full p-3 bg-[#242f3d] rounded text-white">
         <button type="submit" class="w-full bg-blue-600 p-3 rounded font-bold">Сохранить</button>
     </form>
 </body>

@@ -1,21 +1,19 @@
 <body class="bg-[#0f1621] text-white p-6">
+    <script src="https://cdn.tailwindcss.com"></script>
     <div class="text-center mt-10">
-        <div class="w-24 h-24 bg-gray-700 rounded-full mx-auto mb-4 flex items-center justify-center text-3xl">👤</div>
-        
-        <h2 class="text-2xl font-bold">{{ user.fullname if user else 'Имя не задано' }}</h2>
-        <p class="text-gray-400">@{{ user.username if user else 'username' }}</p>
-        
-        <div class="mt-6 text-left bg-[#17212b] p-4 rounded-lg">
-            <p class="text-sm text-gray-400">О себе:</p>
-            <p class="text-lg">{{ user.bio if user and user.bio else 'Нет информации' }}</p>
+        <h2 class="text-2xl font-bold">{{ user['fullname'] }}</h2>
+        <p class="text-gray-400">@{{ user['username'] }}</p>
+        <div class="mt-4 bg-[#17212b] p-4 rounded text-left">
+            <p class="text-gray-400 text-xs">О себе:</p>
+            <p>{{ user['bio'] }}</p>
+            <p class="text-gray-400 text-xs mt-2">Дата рождения:</p>
+            <p>{{ user['birthday'] }}</p>
         </div>
-        
-        <a href="/edit" class="mt-8 block text-blue-400 font-bold">Редактировать профиль</a>
+        <a href="/edit" class="mt-6 block text-blue-400 font-bold">Редактировать</a>
     </div>
-
     <div class="fixed bottom-0 left-0 w-full h-16 bg-[#17212b] flex justify-around items-center border-t border-gray-700">
-        <a href="/" class="flex flex-col items-center">💬 Чаты</a>
-        <a href="/search" class="flex flex-col items-center">🔍 Поиск</a>
-        <a href="/profile" class="flex flex-col items-center">👤 Профиль</a>
+        <a href="/">💬 Чаты</a>
+        <a href="/search">🔍 Поиск</a>
+        <a href="/profile">👤 Профиль</a>
     </div>
 </body>

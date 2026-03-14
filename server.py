@@ -41,7 +41,15 @@ def login(username: str = Form(...)):
     return resp
 
 @app.get("/profile")
-def profile(request: Request):
+def @app.get("/edit")
+def edit_page(request: Request):
+    user = request.cookies.get("username")
+    if not user: return RedirectResponse(url="/")
+    conn = get_db()
+    u = conn.execute("SELECT * FROM users WHERE username = ?", (user,)).fetchone()
+    conn.close()
+    return templates.TemplateResponse("edit.html", {"request": request, "user": u})
+   (request: Request):
     user = request.cookies.get("username")
     if not user: return RedirectResponse(url="/")
     conn = get_db()

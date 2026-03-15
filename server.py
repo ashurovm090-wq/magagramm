@@ -11,19 +11,14 @@ app = FastAPI()
 app.mount("/static", StaticFiles(directory="."), name="static")
 templates = Jinja2Templates(directory=".")
 
-# Получаем URL из настроек Render (Environment Variables)
 DATABASE_URL = os.getenv("DATABASE_URL")
 
-# --- Инициализация БД ---
 def get_db():
-    # Подключаемся к Postgres
-    conn = psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor)
-    return conn
+    return psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor)
 
 def init_db():
     conn = get_db()
     cur = conn.cursor()
-    # Создаем таблицы в Postgres
     cur.execute('''
         CREATE TABLE IF NOT EXISTS users (
             username TEXT PRIMARY KEY, 
@@ -56,13 +51,11 @@ def login(username: str = Form(...)):
     username = username.lower().strip()
     conn = get_db()
     cur = conn.cursor()
-    
     cur.execute("SELECT * FROM users WHERE username = %s", (username,))
     if not cur.fetchone():
         cur.execute('INSERT INTO users (username, fullname, bio, birthday) VALUES (%s, %s, %s, %s)', 
                     (username, username, "", ""))
         conn.commit()
-    
     conn.close()
     resp = RedirectResponse(url="/profile", status_code=303)
     resp.set_cookie(key="username", value=username)
@@ -115,7 +108,7 @@ def get_chat(request: Request, interlocutor: str):
     return templates.TemplateResponse("chat.html", {"request": request, "messages": msgs, "receiver": interlocutor, "me": user})
 
 @app.post("/send_message")
-def send_msg(receiver: str = Form(...), text: str = Form(...)):
+def send_msg(request: Request, receiver: str = Form(...), text: str = Form(...)):
     user = request.cookies.get("username")
     if not user: return RedirectResponse(url="/")
     conn = get_db()
@@ -131,7 +124,8 @@ def update_profile(request: Request, fullname: str = Form(...), bio: str = Form(
     if not user: return RedirectResponse(url="/")
     conn = get_db()
     cur = conn.cursor()
-    cur.execute('UPDATE users SET fullname = %s, bio = %s, birthday = %s WHERE username = %s', (fullname, bio, birthday, user))
+    cur.execute('UPDATE users SET fullname = %s, bio = %s, birthday = %s WHERE username = %s', 
+                (fullname, bio, birthday, user))
     conn.commit()
     conn.close()
     return RedirectResponse(url="/profile", status_code=303)

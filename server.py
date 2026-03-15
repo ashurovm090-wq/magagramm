@@ -47,6 +47,20 @@ def profile(request: Request):
     u = conn.execute("SELECT * FROM users WHERE username = ?", (user,)).fetchone()
     conn.close()
     return templates.TemplateResponse("profile.html", {"request": request, "user": u})
+    
+@app.get("/chats")
+def list_chats(request: Request):
+    user = request.cookies.get("username")
+    if not user: return RedirectResponse(url="/")
+    conn = get_db()
+    # Ищем всех, с кем юзер переписывался (кто отправлял или получал)
+    chats = conn.execute("""
+        SELECT DISTINCT sender as interlocutor FROM messages WHERE receiver = ?
+        UNION
+        SELECT DISTINCT receiver as interlocutor FROM messages WHERE sender = ?
+    """, (user, user)).fetchall()
+    conn.close()
+    return templates.TemplateResponse("chats.html", {"request": request, "chats": chats})
 
 @app.get("/edit")
 def edit_page(request: Request):

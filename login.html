@@ -6,22 +6,29 @@
     <title>Magagram - Вход</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-[#0f1621] text-white p-6 min-h-screen pb-24">
-    <img src="/static/icon.png" class="w-20 h-20 mx-auto mb-6 rounded-2xl" alt="Logo">
+<body class="bg-[#0f1621] text-white flex flex-col items-center justify-center min-h-screen p-6">
     
-    <form action="/login" method="post" class="space-y-4">
-        <input name="username" placeholder="Username" required class="w-full p-3 bg-[#242f3d] rounded">
-        <input name="fullname" placeholder="ФИО" class="w-full p-3 bg-[#242f3d] rounded">
-        <input name="bio" placeholder="О себе" class="w-full p-3 bg-[#242f3d] rounded">
-        <input name="birthday" type="date" class="w-full p-3 bg-[#242f3d] rounded">
-        <button type="submit" class="w-full bg-blue-600 p-3 rounded font-bold">Войти / Регистрация</button>
-        <input type="password" name="password" placeholder="Пароль" required>
-    </form>
+    <div class="w-full max-w-sm space-y-6">
+        <img src="/static/icon.png" class="w-24 h-24 mx-auto rounded-2xl shadow-lg" alt="Logo">
+        
+        <form action="/login" method="post" class="space-y-4">
+            <input name="username" placeholder="Username" required 
+                   class="w-full p-4 bg-[#242f3d] rounded-xl border border-gray-700 focus:border-blue-500 outline-none transition">
+            
+            <input type="password" name="password" placeholder="Пароль" required 
+                   class="w-full p-4 bg-[#242f3d] rounded-xl border border-gray-700 focus:border-blue-500 outline-none transition">
+            
+            <button type="submit" 
+                    class="w-full bg-blue-600 p-4 rounded-xl font-bold hover:bg-blue-700 transition shadow-lg">
+                Войти / Регистрация
+            </button>
+        </form>
+    </div>
 
     <div class="fixed bottom-0 left-0 w-full bg-[#17212b] p-4 flex justify-around border-t border-gray-700">
-        <a href="/" class="text-gray-400 text-sm">💬 Чаты</a>
-        <a href="/search" class="text-gray-400 text-sm">🔍 Поиск</a>
-        <a href="/profile" class="text-gray-400 text-sm">👤 Профиль</a>
+        <a href="/chats" class="text-gray-400 text-sm flex flex-col items-center">💬 Чаты</a>
+        <a href="/search" class="text-gray-400 text-sm flex flex-col items-center">🔍 Поиск</a>
+        <a href="/profile" class="text-gray-400 text-sm flex flex-col items-center">👤 Профиль</a>
     </div>
 </body>
 </html>

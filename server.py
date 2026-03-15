@@ -5,28 +5,24 @@ from fastapi import FastAPI, Request, Form
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
-from passlib.context import CryptContext # Для паролей
+from passlib.context import CryptContext
 import uvicorn
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="."), name="static")
 templates = Jinja2Templates(directory=".")
 
-# Настройка шифрования паролей
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-# --- ПОДКЛЮЧЕНИЕ К POSTGRESQL ---
 DATABASE_URL = os.getenv("DATABASE_URL")
 
 def get_db():
     conn = psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor)
     return conn
 
-# Инициализация таблиц
 def init_db():
     conn = get_db()
     cur = conn.cursor()
-    # Добавил колонку password в таблицу users
     cur.execute('''
         CREATE TABLE IF NOT EXISTS users (
             username TEXT PRIMARY KEY, 
@@ -51,6 +47,9 @@ def index(request: Request):
 @app.post("/login")
 def login(username: str = Form(...), password: str = Form(...)):
     username = username.lower().strip()
+    # Обрезаем пароль до 72 символов, чтобы bcrypt не падал
+    safe_password = password[:72]
+    
     conn = get_db()
     cur = conn.cursor()
     
@@ -58,17 +57,14 @@ def login(username: str = Form(...), password: str = Form(...)):
     user_record = cur.fetchone()
     
     if not user_record:
-        # Если юзера нет — регистрируем и хешируем пароль
-        hashed_pw = pwd_context.hash(password)
+        hashed_pw = pwd_context.hash(safe_password)
         cur.execute(
             'INSERT INTO users (username, fullname, bio, birthday, password) VALUES (%s, %s, %s, %s, %s)', 
             (username, username, "", "", hashed_pw)
         )
         conn.commit()
     else:
-        # Если юзер есть — ПРОВЕРЯЕМ ПАРОЛЬ
-        # Если в базе пароля еще нет (старый акк) или он не совпал
-        if not user_record.get('password') or not pwd_context.verify(password, user_record['password']):
+        if not user_record.get('password') or not pwd_context.verify(safe_password, user_record['password']):
             conn.close()
             return "Ошибка: Неверный пароль или аккаунт уже занят."
 

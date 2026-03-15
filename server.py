@@ -1,25 +1,33 @@
+import os
+import psycopg2
+from psycopg2.extras import RealDictCursor
 from fastapi import FastAPI, Request, Form
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
-import sqlite3
 import uvicorn
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="."), name="static")
 templates = Jinja2Templates(directory=".")
 
-# --- Инициализация базы данных ---
+# --- ПОДКЛЮЧЕНИЕ К POSTGRESQL ---
+DATABASE_URL = os.getenv("DATABASE_URL")
+
 def get_db():
-    conn = sqlite3.connect('users.db')
-    conn.row_factory = sqlite3.Row
+    conn = psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor)
     return conn
 
-conn = get_db()
-conn.execute('CREATE TABLE IF NOT EXISTS users (username TEXT PRIMARY KEY, fullname TEXT, bio TEXT, birthday TEXT)')
-conn.execute('CREATE TABLE IF NOT EXISTS messages (id INTEGER PRIMARY KEY AUTOINCREMENT, sender TEXT, receiver TEXT, text TEXT)')
-conn.commit()
-conn.close()
+# Инициализация таблиц
+def init_db():
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute('CREATE TABLE IF NOT EXISTS users (username TEXT PRIMARY KEY, fullname TEXT, bio TEXT, birthday TEXT)')
+    cur.execute('CREATE TABLE IF NOT EXISTS messages (id SERIAL PRIMARY KEY, sender TEXT, receiver TEXT, text TEXT)')
+    conn.commit()
+    conn.close()
+
+init_db()
 
 @app.get("/")
 def index(request: Request):
@@ -31,8 +39,10 @@ def index(request: Request):
 def login(username: str = Form(...)):
     username = username.lower().strip()
     conn = get_db()
-    if not conn.execute("SELECT * FROM users WHERE username = ?", (username,)).fetchone():
-        conn.execute('INSERT INTO users (username, fullname, bio, birthday) VALUES (?, ?, ?, ?)', (username, username, "", ""))
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM users WHERE username = %s", (username,))
+    if not cur.fetchone():
+        cur.execute('INSERT INTO users (username, fullname, bio, birthday) VALUES (%s, %s, %s, %s)', (username, username, "", ""))
         conn.commit()
     conn.close()
     resp = RedirectResponse(url="/profile", status_code=303)
@@ -44,21 +54,24 @@ def profile(request: Request):
     user = request.cookies.get("username")
     if not user: return RedirectResponse(url="/")
     conn = get_db()
-    u = conn.execute("SELECT * FROM users WHERE username = ?", (user,)).fetchone()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM users WHERE username = %s", (user,))
+    u = cur.fetchone()
     conn.close()
     return templates.TemplateResponse("profile.html", {"request": request, "user": u})
-    
+
 @app.get("/chats")
 def list_chats(request: Request):
     user = request.cookies.get("username")
     if not user: return RedirectResponse(url="/")
     conn = get_db()
-    # Ищем всех, с кем юзер переписывался (кто отправлял или получал)
-    chats = conn.execute("""
-        SELECT DISTINCT sender as interlocutor FROM messages WHERE receiver = ?
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT DISTINCT sender as interlocutor FROM messages WHERE receiver = %s
         UNION
-        SELECT DISTINCT receiver as interlocutor FROM messages WHERE sender = ?
-    """, (user, user)).fetchall()
+        SELECT DISTINCT receiver as interlocutor FROM messages WHERE sender = %s
+    """, (user, user))
+    chats = cur.fetchall()
     conn.close()
     return templates.TemplateResponse("chats.html", {"request": request, "chats": chats})
 
@@ -67,14 +80,18 @@ def edit_page(request: Request):
     user = request.cookies.get("username")
     if not user: return RedirectResponse(url="/")
     conn = get_db()
-    u = conn.execute("SELECT * FROM users WHERE username = ?", (user,)).fetchone()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM users WHERE username = %s", (user,))
+    u = cur.fetchone()
     conn.close()
     return templates.TemplateResponse("edit.html", {"request": request, "user": u})
 
 @app.get("/search")
 def search(request: Request):
     conn = get_db()
-    all_users = conn.execute("SELECT * FROM users").fetchall()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM users")
+    all_users = cur.fetchall()
     conn.close()
     return templates.TemplateResponse("search.html", {"request": request, "users": all_users})
 
@@ -83,8 +100,10 @@ def get_chat(request: Request, interlocutor: str):
     user = request.cookies.get("username")
     if not user: return RedirectResponse(url="/")
     conn = get_db()
-    msgs = conn.execute("SELECT * FROM messages WHERE (sender=? AND receiver=?) OR (sender=? AND receiver=?) ORDER BY id ASC", 
-                       (user, interlocutor, interlocutor, user)).fetchall()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM messages WHERE (sender=%s AND receiver=%s) OR (sender=%s AND receiver=%s) ORDER BY id ASC", 
+                       (user, interlocutor, interlocutor, user))
+    msgs = cur.fetchall()
     conn.close()
     return templates.TemplateResponse("chat.html", {"request": request, "messages": msgs, "receiver": interlocutor, "me": user})
 
@@ -93,7 +112,8 @@ def send_msg(receiver: str = Form(...), text: str = Form(...), request: Request 
     user = request.cookies.get("username")
     if not user: return RedirectResponse(url="/")
     conn = get_db()
-    conn.execute("INSERT INTO messages (sender, receiver, text) VALUES (?, ?, ?)", (user, receiver, text))
+    cur = conn.cursor()
+    cur.execute("INSERT INTO messages (sender, receiver, text) VALUES (%s, %s, %s)", (user, receiver, text))
     conn.commit()
     conn.close()
     return RedirectResponse(url=f"/chat/{receiver}", status_code=303)
@@ -103,7 +123,8 @@ def update_profile(request: Request, fullname: str = Form(...), bio: str = Form(
     user = request.cookies.get("username")
     if not user: return RedirectResponse(url="/")
     conn = get_db()
-    conn.execute('UPDATE users SET fullname = ?, bio = ?, birthday = ? WHERE username = ?', (fullname, bio, birthday, user))
+    cur = conn.cursor()
+    cur.execute('UPDATE users SET fullname = %s, bio = %s, birthday = %s WHERE username = %s', (fullname, bio, birthday, user))
     conn.commit()
     conn.close()
     return RedirectResponse(url="/profile", status_code=303)

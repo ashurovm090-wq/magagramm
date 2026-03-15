@@ -5,11 +5,15 @@ from fastapi import FastAPI, Request, Form
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
+from passlib.context import CryptContext # Для паролей
 import uvicorn
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="."), name="static")
 templates = Jinja2Templates(directory=".")
+
+# Настройка шифрования паролей
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # --- ПОДКЛЮЧЕНИЕ К POSTGRESQL ---
 DATABASE_URL = os.getenv("DATABASE_URL")
@@ -22,7 +26,16 @@ def get_db():
 def init_db():
     conn = get_db()
     cur = conn.cursor()
-    cur.execute('CREATE TABLE IF NOT EXISTS users (username TEXT PRIMARY KEY, fullname TEXT, bio TEXT, birthday TEXT)')
+    # Добавил колонку password в таблицу users
+    cur.execute('''
+        CREATE TABLE IF NOT EXISTS users (
+            username TEXT PRIMARY KEY, 
+            fullname TEXT, 
+            bio TEXT, 
+            birthday TEXT, 
+            password TEXT
+        )
+    ''')
     cur.execute('CREATE TABLE IF NOT EXISTS messages (id SERIAL PRIMARY KEY, sender TEXT, receiver TEXT, text TEXT)')
     conn.commit()
     conn.close()
@@ -36,14 +49,29 @@ def index(request: Request):
     return templates.TemplateResponse("login.html", {"request": request})
 
 @app.post("/login")
-def login(username: str = Form(...)):
+def login(username: str = Form(...), password: str = Form(...)):
     username = username.lower().strip()
     conn = get_db()
     cur = conn.cursor()
+    
     cur.execute("SELECT * FROM users WHERE username = %s", (username,))
-    if not cur.fetchone():
-        cur.execute('INSERT INTO users (username, fullname, bio, birthday) VALUES (%s, %s, %s, %s)', (username, username, "", ""))
+    user_record = cur.fetchone()
+    
+    if not user_record:
+        # Если юзера нет — регистрируем и хешируем пароль
+        hashed_pw = pwd_context.hash(password)
+        cur.execute(
+            'INSERT INTO users (username, fullname, bio, birthday, password) VALUES (%s, %s, %s, %s, %s)', 
+            (username, username, "", "", hashed_pw)
+        )
         conn.commit()
+    else:
+        # Если юзер есть — ПРОВЕРЯЕМ ПАРОЛЬ
+        # Если в базе пароля еще нет (старый акк) или он не совпал
+        if not user_record.get('password') or not pwd_context.verify(password, user_record['password']):
+            conn.close()
+            return "Ошибка: Неверный пароль или аккаунт уже занят."
+
     conn.close()
     resp = RedirectResponse(url="/profile", status_code=303)
     resp.set_cookie(key="username", value=username)
@@ -130,4 +158,5 @@ def update_profile(request: Request, fullname: str = Form(...), bio: str = Form(
     return RedirectResponse(url="/profile", status_code=303)
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=10000)
+    port = int(os.environ.get("PORT", 10000))
+    uvicorn.run(app, host="0.0.0.0", port=port)

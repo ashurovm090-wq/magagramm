@@ -47,7 +47,7 @@ def index(request: Request):
 @app.post("/login")
 def login(username: str = Form(...), password: str = Form(...)):
     username = username.lower().strip()
-    # Обрезаем пароль до 72 символов, чтобы bcrypt не падал
+    # Обрезаем пароль до 72 символов
     safe_password = password[:72]
     
     conn = get_db()
@@ -57,6 +57,7 @@ def login(username: str = Form(...), password: str = Form(...)):
     user_record = cur.fetchone()
     
     if not user_record:
+        # Регистрация нового пользователя
         hashed_pw = pwd_context.hash(safe_password)
         cur.execute(
             'INSERT INTO users (username, fullname, bio, birthday, password) VALUES (%s, %s, %s, %s, %s)', 
@@ -64,9 +65,17 @@ def login(username: str = Form(...), password: str = Form(...)):
         )
         conn.commit()
     else:
-        if not user_record.get('password') or not pwd_context.verify(safe_password, user_record['password']):
-            conn.close()
-            return "Ошибка: Неверный пароль или аккаунт уже занят."
+        # Проверка пароля с учетом старых аккаунтов (без пароля)
+        if user_record.get('password'):
+            # Если пароль есть — проверяем
+            if not pwd_context.verify(safe_password, user_record['password']):
+                conn.close()
+                return "Ошибка: Неверный пароль."
+        else:
+            # Если пароля в базе нет — привязываем текущий введенный
+            hashed_pw = pwd_context.hash(safe_password)
+            cur.execute('UPDATE users SET password = %s WHERE username = %s', (hashed_pw, username))
+            conn.commit()
 
     conn.close()
     resp = RedirectResponse(url="/profile", status_code=303)

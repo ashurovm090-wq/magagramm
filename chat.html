@@ -3,46 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Magagram - Чаты</title>
+    <title>Чат с {{ receiver }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-[#0f1621] text-white flex flex-col h-screen">
-
-    <div class="bg-[#17212b] p-4 border-b border-gray-800">
-        <h2 class="font-bold text-lg">Сообщения</h2>
+    <div class="bg-[#17212b] p-4 flex items-center border-b border-gray-800">
+        <a href="/search" class="mr-4">⬅</a>
+        <h2 class="font-bold">@{{ receiver }}</h2>
     </div>
 
-    <form action="/chat" method="get" class="p-4 bg-[#17212b] border-b border-gray-800">
-        <input name="interlocutor" placeholder="Введите @username для чата..." 
-               class="w-full bg-[#242f3d] p-3 rounded-xl text-white outline-none" required>
+    <div class="flex-1 overflow-y-auto p-4 space-y-2">
+        {% for m in messages %}
+        <div class="flex {% if m['sender'] == me %} justify-end {% endif %}">
+            <div class="max-w-[80%] p-3 rounded-2xl {% if m['sender'] == me %} bg-blue-600 rounded-tr-none {% else %} bg-[#17212b] rounded-tl-none {% endif %}">
+                {{ m['text'] }}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <form action="/send_message" method="post" class="p-4 bg-[#17212b] flex gap-2">
+        <input type="hidden" name="receiver" value="{{ receiver }}">
+        <input name="text" placeholder="Сообщение..." class="flex-1 bg-[#242f3d] border-none rounded-xl p-3 outline-none" autocomplete="off" required>
+        <button type="submit" class="bg-blue-600 px-6 rounded-xl font-bold">></button>
     </form>
-
-    {% if receiver %}
-        <div class="flex-1 overflow-y-auto p-4 space-y-2">
-            {% for m in messages %}
-                <div class="flex {% if m['sender'] == me %} justify-end {% endif %}">
-                    <div class="p-3 rounded-2xl max-w-[80%] {% if m['sender'] == me %} bg-blue-600 rounded-tr-none {% else %} bg-[#17212b] rounded-tl-none {% endif %}">
-                        {{ m['text'] }}
-                    </div>
-                </div>
-            {% endfor %}
-        </div>
-
-        <form action="/send_message" method="post" class="p-4 bg-[#17212b] flex gap-2">
-            <input type="hidden" name="receiver" value="{{ receiver }}">
-            <input name="text" placeholder="Сообщение..." class="flex-1 bg-[#242f3d] p-3 rounded-xl outline-none" autocomplete="off" required>
-            <button type="submit" class="bg-blue-600 px-6 rounded-xl font-bold">></button>
-        </form>
-    {% else %}
-        <div class="flex-1 flex items-center justify-center text-gray-500 text-center p-6">
-            Введите имя пользователя, чтобы начать диалог
-        </div>
-    {% endif %}
-
-    <div class="fixed bottom-0 left-0 w-full bg-[#17212b] p-4 flex justify-around border-t border-gray-700">
-        <a href="/chat" class="text-blue-400 text-sm text-center font-bold">💬<br>Чаты</a>
-        <a href="/profile" class="text-gray-400 text-sm text-center">👤<br>Профиль</a>
-    </div>
-
 </body>
 </html>

@@ -92,25 +92,20 @@ def search(request: Request):
     conn.close()
     return templates.TemplateResponse("search.html", {"request": request, "users": all_users})
 
-@app.post("/send_message")
-def send_msg(request: Request, receiver: str = Form(...), text: str = Form(...)):
-    # 1. Получаем пользователя из кук
+@app.get("/chat/{interlocutor}")
+def get_chat(request: Request, interlocutor: str):
     user = request.cookies.get("username")
-    if not user:
-        return RedirectResponse(url="/")
-    
-    # 2. Подключаемся к БД
+    if not user: return RedirectResponse(url="/")
     conn = get_db()
     cur = conn.cursor()
-    
-    # 3. Вставляем сообщение
-    cur.execute("INSERT INTO messages (sender, receiver, text) VALUES (%s, %s, %s)", 
-                (user, receiver, text))
-    conn.commit()
+    cur.execute("""
+        SELECT * FROM messages 
+        WHERE (sender=%s AND receiver=%s) OR (sender=%s AND receiver=%s) 
+        ORDER BY id ASC
+    """, (user, interlocutor, interlocutor, user))
+    msgs = cur.fetchall()
     conn.close()
-    
-    # 4. Перенаправляем обратно в чат
-    return RedirectResponse(url=f"/chat/{receiver}", status_code=303)
+    return templates.TemplateResponse("chat.html", {"request": request, "messages": msgs, "receiver": interlocutor, "me": user})
 
 @app.post("/send_message")
 def send_msg(request: Request, receiver: str = Form(...), text: str = Form(...)):

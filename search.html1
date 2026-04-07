@@ -1,32 +1,5 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Поиск пользователей</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-[#0f1621] text-white p-6 min-h-screen pb-24">
-    <h2 class="text-xl font-bold mb-6 text-center">Все пользователи</h2>
-    
-    <div class="space-y-4">
-        {% for u in users %}
-        <a href="/chat/{{ u['username'] }}" class="bg-[#17212b] p-4 rounded-xl flex items-center space-x-4 active:bg-[#202b36] transition-colors block">
-            <div class="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center font-bold text-xl uppercase">
-                {{ u['fullname'][0] if u['fullname'] else '?' }}
-            </div>
-            <div>
-                <p class="font-bold">{{ u['fullname'] }}</p>
-                <p class="text-gray-400 text-sm">@{{ u['username'] }}</p>
-            </div>
-        </a>
-        {% endfor %}
-    </div>
-
-    <div class="fixed bottom-0 left-0 w-full bg-[#17212b] p-4 flex justify-around border-t border-gray-700">
-        <a href="/" class="text-gray-400 text-sm text-center">💬<br>Чаты</a>
-        <a href="/search" class="text-blue-400 text-sm text-center font-bold">🔍<br>Поиск</a>
-        <a href="/profile" class="text-gray-400 text-sm text-center">👤<br>Профиль</a>
-    </div>
-</body>
-</html>
+<div style="padding: 15px;">
+    <input type="text" placeholder="Введите @username..." 
+           style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #ddd; box-sizing: border-box;">
+    <p style="color: #888; text-align: center; margin-top: 20px;">Начните вводить имя, чтобы найти друга</p>
+</div>

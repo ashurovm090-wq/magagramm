@@ -1,22 +1,21 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8"><title>Поиск</title>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        body { font-family: -apple-system, sans-serif; background: white; padding: 20px; }
-        input { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #d2d2d7; background: #F5F5F7; outline: none; }
-        .res { margin-top: 20px; border-bottom: 1px solid #e5e5e5; padding: 10px; cursor: pointer; }
+        body { font-family: -apple-system, sans-serif; padding: 20px; background: #fff; }
+        input { width: 100%; background: #f2f2f7; border: none; padding: 15px; border-radius: 12px; font-size: 17px; outline: none; }
+        .item { margin-top: 20px; padding: 15px; background: #f2f2f7; border-radius: 12px; font-weight: 500; }
     </style>
 </head>
 <body>
-    <a href="/chat" style="text-decoration:none; color:#0071e3;">← Назад</a>
-    <h2 style="margin-top:20px;">Поиск</h2>
-    <input type="text" placeholder="Введите username..." oninput="search(this.value)">
-    <div id="results"></div>
+    <a href="/chat" style="color:#007aff; text-decoration:none; font-size:17px;">← Назад</a>
+    <h1 style="font-size:34px; letter-spacing:-1px;">Поиск</h1>
+    <input type="text" placeholder="Поиск по юзернейму" oninput="show(this.value)">
+    <div id="res"></div>
     <script>
-        function search(v) {
-            const r = document.getElementById('results');
-            r.innerHTML = v ? `<div class="res">Пользователь: <b>${v}</b> (Нажмите, чтобы открыть)</div>` : '';
+        function show(v) {
+            document.getElementById('res').innerHTML = v ? `<div class="item">Пользователь: ${v}</div>` : '';
         }
     </script>
 </body>

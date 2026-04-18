@@ -1,25 +1,27 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8"><title>Профиль</title>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        body { font-family: -apple-system, sans-serif; background: #F5F5F7; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .card { background: white; padding: 30px; border-radius: 20px; width: 300px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
-        .avatar { width: 80px; height: 80px; background: #e5e5e5; border-radius: 50%; margin: 0 auto 15px; }
-        .btn { display: block; margin-top: 15px; text-decoration: none; color: #0071e3; }
+        body { font-family: -apple-system, sans-serif; background: #f2f2f7; margin: 0; display: flex; justify-content: center; padding-top: 50px; }
+        .card { background: #fff; width: 90%; max-width: 350px; border-radius: 20px; padding: 25px; text-align: center; }
+        .av { width: 100px; height: 100px; background: #e5e5ea; border-radius: 50%; margin: 0 auto 20px; }
+        h2 { margin: 0; font-size: 24px; }
+        p { color: #8e8e93; margin: 8px 0 25px; }
+        a { display: block; padding: 12px; background: #f2f2f7; color: #007aff; text-decoration: none; border-radius: 12px; margin-bottom: 10px; font-weight: 500; }
     </style>
 </head>
 <body>
     <div class="card">
-        <div class="avatar"></div>
-        <h2 id="name">Загрузка...</h2>
-        <p id="bio" style="color:#86868b">О себе не заполнено</p>
-        <a href="/edit" class="btn">Редактировать</a>
-        <a href="/chat" class="btn" style="color: #86868b">Назад</a>
+        <div class="av"></div>
+        <h2 id="n">Username</h2>
+        <p id="b">О себе не заполнено</p>
+        <a href="/edit">Редактировать</a>
+        <a href="/chat" style="background: #007aff; color: #fff;">В чат</a>
     </div>
     <script>
-        document.getElementById('name').textContent = localStorage.getItem('user') || 'User';
-        if(localStorage.getItem('bio')) document.getElementById('bio').textContent = localStorage.getItem('bio');
+        document.getElementById('n').textContent = localStorage.getItem('user');
+        document.getElementById('b').textContent = localStorage.getItem('bio') || 'О себе не заполнено';
     </script>
 </body>
 </html>

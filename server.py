@@ -19,21 +19,19 @@ class ConnectionManager:
 manager = ConnectionManager()
 
 def serve_html(file_name: str):
-    with open(file_name, "r", encoding="utf-8") as f:
-        return HTMLResponse(content=f.read())
+    if os.path.exists(file_name):
+        with open(file_name, "r", encoding="utf-8") as f:
+            return HTMLResponse(content=f.read())
+    return HTMLResponse(content="File Not Found", status_code=404)
 
 @app.get("/")
 async def index(): return serve_html("index.html")
-
 @app.get("/chat")
 async def chat(): return serve_html("chat.html")
-
 @app.get("/profile")
 async def profile(): return serve_html("profile.html")
-
 @app.get("/edit")
 async def edit(): return serve_html("edit.html")
-
 @app.get("/search")
 async def search(): return serve_html("search.html")
 

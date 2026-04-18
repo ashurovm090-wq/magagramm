@@ -1,57 +1,23 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Поиск</title>
+    <meta charset="UTF-8"><title>Поиск</title>
     <style>
-        /* Копируем базовые стили из chat.html (root, body, tab-bar) */
-        :root { --primary-orange: #f3824a; --bg-gray: #f4f7f9; }
-        body { font-family: sans-serif; background: var(--bg-gray); margin: 0; height: 100vh; }
-        
-        .search-header { background: white; padding: 20px 15px; border-bottom: 1px solid #eee; }
-        .search-input { 
-            width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #ddd; 
-            background: #f9f9f9; outline: none; font-size: 16px; box-sizing: border-box;
-        }
-        
-        .results-list { padding: 15px; }
-        .user-card { 
-            background: white; padding: 12px; border-radius: 12px; margin-bottom: 10px;
-            display: flex; align-items: center; justify-content: space-between;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-        }
-        .user-info { display: flex; align-items: center; gap: 10px; }
-        .avatar-sm { width: 40px; height: 40px; background: #eee; border-radius: 50%; }
-        .add-btn { color: var(--primary-orange); font-weight: bold; cursor: pointer; }
-
-        /* Таб-бар (такой же как в чате) */
-        .tab-bar { height: 60px; background: white; border-top: 1px solid #ddd; display: flex; justify-content: space-around; align-items: center; position: fixed; bottom: 0; width: 100%; }
-        .tab-item { text-align: center; color: #888; text-decoration: none; font-size: 11px; display: flex; flex-direction: column; }
-        .active { color: var(--primary-orange); }
+        body { font-family: -apple-system, sans-serif; background: white; padding: 20px; }
+        input { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #d2d2d7; background: #F5F5F7; outline: none; }
+        .res { margin-top: 20px; border-bottom: 1px solid #e5e5e5; padding: 10px; cursor: pointer; }
     </style>
 </head>
 <body>
-
-<div class="search-header">
-    <input type="text" class="search-input" placeholder="Поиск по юзернейму...">
-</div>
-
-<div class="results-list">
-    <div class="user-card">
-        <div class="user-info">
-            <div class="avatar-sm"></div>
-            <span><strong>@alex_dev</strong></span>
-        </div>
-        <div class="add-btn">Написать</div>
-    </div>
-</div>
-
-<nav class="tab-bar">
-    <a href="/chat" class="tab-item"><span>💬</span><span>Чаты</span></a>
-    <a href="/search" class="tab-item active"><span>🔍</span><span>Поиск</span></a>
-    <a href="/profile" class="tab-item"><span>👤</span><span>Профиль</span></a>
-</nav>
-
+    <a href="/chat" style="text-decoration:none; color:#0071e3;">← Назад</a>
+    <h2 style="margin-top:20px;">Поиск</h2>
+    <input type="text" placeholder="Введите username..." oninput="search(this.value)">
+    <div id="results"></div>
+    <script>
+        function search(v) {
+            const r = document.getElementById('results');
+            r.innerHTML = v ? `<div class="res">Пользователь: <b>${v}</b> (Нажмите, чтобы открыть)</div>` : '';
+        }
+    </script>
 </body>
 </html>

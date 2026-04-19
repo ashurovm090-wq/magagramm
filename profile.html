@@ -2,26 +2,32 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Профиль - MagaGramm</title>
     <style>
-        body { font-family: -apple-system, sans-serif; background: #f2f2f7; margin: 0; display: flex; justify-content: center; padding-top: 50px; }
-        .card { background: #fff; width: 90%; max-width: 350px; border-radius: 20px; padding: 25px; text-align: center; }
-        .av { width: 100px; height: 100px; background: #e5e5ea; border-radius: 50%; margin: 0 auto 20px; }
-        h2 { margin: 0; font-size: 24px; }
-        p { color: #8e8e93; margin: 8px 0 25px; }
-        a { display: block; padding: 12px; background: #f2f2f7; color: #007aff; text-decoration: none; border-radius: 12px; margin-bottom: 10px; font-weight: 500; }
+        body { font-family: -apple-system, sans-serif; background: #f2f2f7; margin: 0; display: flex; align-items: center; justify-content: center; height: 100vh; }
+        .card { background: white; width: 90%; max-width: 350px; border-radius: 20px; padding: 30px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+        .back { display: block; text-align: left; color: #007aff; text-decoration: none; font-size: 17px; margin-bottom: 20px; }
+        .p-ava { width: 100px; height: 100px; border-radius: 50%; background: #e5e5ea; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; font-size: 40px; color: #8e8e93; }
+        h2 { margin: 10px 0 5px; font-size: 24px; }
+        .tag { color: #8e8e93; margin-bottom: 25px; }
+        .btn { display: block; width: 100%; padding: 14px; margin: 10px 0; border-radius: 12px; text-decoration: none; font-weight: 600; font-size: 17px; }
+        .btn-edit { background: #f2f2f7; color: #007aff; }
+        .btn-chat { background: #007aff; color: white; }
     </style>
 </head>
 <body>
     <div class="card">
-        <div class="av"></div>
-        <h2 id="n">Username</h2>
-        <p id="b">О себе не заполнено</p>
-        <a href="/edit">Редактировать</a>
-        <a href="/chat" style="background: #007aff; color: #fff;">В чат</a>
+        <a href="/chats" class="back">‹ Назад</a>
+        <div class="p-ava" id="pAva">?</div>
+        <h2 id="pName">User</h2>
+        <div class="tag">Разраб</div>
+        <a href="/edit" class="btn btn-edit">Редактировать</a>
+        <a href="/chats" class="btn btn-chat">В список чатов</a>
     </div>
     <script>
-        document.getElementById('n').textContent = localStorage.getItem('user');
-        document.getElementById('b').textContent = localStorage.getItem('bio') || 'О себе не заполнено';
+        const u = localStorage.getItem('user') || 'Аноним';
+        document.getElementById('pName').textContent = u;
+        document.getElementById('pAva').textContent = u[0].toUpperCase();
     </script>
 </body>
 </html>

@@ -1,30 +1,29 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Вход</title>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Вход - MagaGramm</title>
     <style>
-        body { font-family: -apple-system, sans-serif; background: #fff; margin: 0; display: flex; align-items: center; justify-content: center; height: 100vh; }
+        body { font-family: -apple-system, sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; background: #fff; }
         .box { width: 85%; max-width: 320px; text-align: center; }
-        h1 { font-size: 34px; font-weight: 700; letter-spacing: -1px; margin-bottom: 40px; }
+        h1 { font-size: 36px; font-weight: 800; margin-bottom: 40px; letter-spacing: -1px; }
         input { width: 100%; padding: 16px; margin-bottom: 12px; border-radius: 12px; border: 1px solid #e5e5ea; background: #f2f2f7; font-size: 17px; box-sizing: border-box; outline: none; }
-        input:focus { background: #fff; border-color: #007aff; }
         button { width: 100%; padding: 16px; background: #007aff; color: white; border: none; border-radius: 12px; font-size: 17px; font-weight: 600; cursor: pointer; }
     </style>
 </head>
 <body>
     <div class="box">
-        <h1>Messenger</h1>
+        <h1>MagaGramm</h1>
         <input type="text" id="u" placeholder="Username">
-        <input type="password" id="p" placeholder="Password">
+        <input type="password" placeholder="Password">
         <button onclick="login()">Войти</button>
     </div>
     <script>
-        function login() {
-            const u = document.getElementById('u').value;
+        async function login() {
+            const u = document.getElementById('u').value.trim();
             if(u) {
                 localStorage.setItem('user', u);
+                await fetch(`/api/register?user=${encodeURIComponent(u)}`, {method: 'POST'});
                 location.href = '/chats';
             }
         }

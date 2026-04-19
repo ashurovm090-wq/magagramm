@@ -1,56 +1,46 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Чат - MagaGramm</title>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Чат</title>
     <style>
-        body { font-family: -apple-system, sans-serif; margin: 0; display: flex; flex-direction: column; height: 100vh; background: #fff; }
-        .hdr { height: 60px; border-bottom: 0.5px solid #c6c6c8; display: flex; align-items: center; padding: 0 16px; background: #fff; position: sticky; top: 0; z-index: 10; }
-        .hdr a { color: #007aff; text-decoration: none; font-size: 17px; margin-right: 15px; }
+        body { font-family: -apple-system, sans-serif; margin: 0; display: flex; flex-direction: column; height: 100vh; }
+        .hdr { height: 60px; border-bottom: 0.5px solid #ccc; display: flex; align-items: center; padding: 0 16px; }
+        .hdr a { color: #007aff; text-decoration: none; font-size: 24px; margin-right: 15px; }
         #msgs { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 8px; }
-        .m { max-width: 75%; padding: 10px 14px; border-radius: 18px; font-size: 16px; line-height: 1.4; word-wrap: break-word; }
-        .in { background: #e9e9eb; align-self: flex-start; border-bottom-left-radius: 4px; }
-        .out { background: #007aff; align-self: flex-end; color: #fff; border-bottom-right-radius: 4px; }
-        .auth { font-size: 11px; opacity: 0.6; margin-bottom: 2px; font-weight: 600; }
-        .footer { padding: 10px 12px 30px; border-top: 0.5px solid #c6c6c8; display: flex; align-items: center; gap: 8px; background: #fff; }
-        input { flex: 1; border: 1px solid #d1d1d6; border-radius: 20px; padding: 10px 15px; font-size: 16px; outline: none; background: #f2f2f7; }
-        .s-btn { background: #007aff; color: white; border: none; border-radius: 50%; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; font-size: 18px; cursor: pointer; }
+        .m { max-width: 75%; padding: 10px 14px; border-radius: 18px; font-size: 16px; }
+        .in { background: #e9e9eb; align-self: flex-start; }
+        .out { background: #007aff; align-self: flex-end; color: #fff; }
+        .footer { padding: 10px 12px 30px; border-top: 0.5px solid #ccc; display: flex; gap: 8px; }
+        input { flex: 1; border: 1px solid #ddd; border-radius: 20px; padding: 10px 15px; outline: none; }
+        button { background: #007aff; color: #fff; border: none; border-radius: 50%; width: 34px; height: 34px; font-weight: bold; }
     </style>
 </head>
 <body>
-    <div class="hdr"><a href="/chats">‹ Назад</a><b>Общий канал</b></div>
+    <div class="hdr"><a href="/chats">‹</a><b id="chatWith">Чат</b></div>
     <div id="msgs"></div>
-    <div class="footer">
-        <input type="text" id="i" placeholder="Сообщение" autocomplete="off">
-        <button class="s-btn" onclick="send()">↑</button>
-    </div>
+    <div class="footer"><input type="text" id="i" placeholder="Сообщение"><button onclick="send()">↑</button></div>
     <script>
-        const user = localStorage.getItem('user') || 'Аноним';
-        const msgsDiv = document.getElementById('msgs');
-
-        // Загрузка истории из SQLite
-        fetch('/api/messages').then(r => r.json()).then(data => data.forEach(m => add(m)));
-
-        const ws = new WebSocket((location.protocol==='https:'?'wss://':'ws://')+location.host+'/ws');
+        const me = localStorage.getItem('user');
+        const withUser = new URLSearchParams(window.location.search).get('with');
+        document.getElementById('chatWith').textContent = withUser;
+        fetch(`/api/messages?me=${me}&with_user=${withUser}`).then(r => r.json()).then(data => data.forEach(add));
+        const ws = new WebSocket((location.protocol==='https:'?'wss://':'ws://')+location.host+'/ws/'+me);
         ws.onmessage = e => add(JSON.parse(e.data));
-
-        function add(data) {
+        function add(d) {
             const div = document.createElement('div');
-            const isMe = data.u === user;
-            div.className = 'm ' + (isMe ? 'out' : 'in');
-            div.innerHTML = `<div class="auth">${data.u}</div>${data.t}`;
-            msgsDiv.appendChild(div);
-            msgsDiv.scrollTop = 99999;
+            div.className = 'm ' + (d.u === me ? 'out' : 'in');
+            div.textContent = d.t;
+            document.getElementById('msgs').appendChild(div);
+            document.getElementById('msgs').scrollTop = 99999;
         }
-
         function send() {
-            const input = document.getElementById('i');
-            if(input.value.trim()) {
-                ws.send(JSON.stringify({u: user, t: input.value.trim()}));
-                input.value = '';
+            const el = document.getElementById('i');
+            if(el.value) {
+                ws.send(JSON.stringify({to: withUser, t: el.value}));
+                el.value = '';
             }
         }
-        document.getElementById('i').onkeypress = e => { if(e.key==='Enter') send() };
     </script>
 </body>
 </html>

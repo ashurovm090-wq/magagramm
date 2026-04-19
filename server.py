@@ -4,14 +4,11 @@ import os, json, sqlite3
 
 app = FastAPI()
 
-# Инициализация базы данных SQLite
 def init_db():
     conn = sqlite3.connect("database.db")
-    cursor = conn.cursor()
-    # Таблица для истории сообщений
-    cursor.execute("CREATE TABLE IF NOT EXISTS msgs (user TEXT, text TEXT)")
-    # Таблица для пользователей (чтобы поиск их видел)
-    cursor.execute("CREATE TABLE IF NOT EXISTS users (username TEXT UNIQUE)")
+    # База для ЛС: от кого, кому, текст
+    conn.execute("CREATE TABLE IF NOT EXISTS msgs (from_user TEXT, to_user TEXT, text TEXT)")
+    conn.execute("CREATE TABLE IF NOT EXISTS users (username TEXT UNIQUE)")
     conn.commit()
     conn.close()
 
@@ -19,84 +16,74 @@ init_db()
 
 class ConnectionManager:
     def __init__(self):
-        self.active_connections: list[WebSocket] = []
+        self.active_connections: dict = {}
 
-    async def connect(self, websocket: WebSocket):
+    async def connect(self, user: str, websocket: WebSocket):
         await websocket.accept()
-        self.active_connections.append(websocket)
+        self.active_connections[user] = websocket
 
-    def disconnect(self, websocket: WebSocket):
-        self.active_connections.remove(websocket)
+    def disconnect(self, user: str):
+        if user in self.active_connections:
+            del self.active_connections[user]
 
-    async def broadcast(self, message: str):
-        for connection in self.active_connections:
-            await connection.send_text(message)
+    async def send_private(self, message: str, to_user: str):
+        if to_user in self.active_connections:
+            await self.active_connections[to_user].send_text(message)
 
 manager = ConnectionManager()
 
-def serve_html(file_name: str):
-    if os.path.exists(file_name):
-        with open(file_name, "r", encoding="utf-8") as f:
+def serve_html(name: str):
+    if os.path.exists(name):
+        with open(name, "r", encoding="utf-8") as f:
             return HTMLResponse(content=f.read())
-    return HTMLResponse(content="<h1>404: Файл не найден</h1>", status_code=404)
+    return HTMLResponse(content="404", status_code=404)
 
-# Навигация
 @app.get("/")
 async def index(): return serve_html("index.html")
-
 @app.get("/chats")
 async def chats(): return serve_html("chats.html")
-
 @app.get("/chat")
 async def chat(): return serve_html("chat.html")
-
 @app.get("/profile")
 async def profile(): return serve_html("profile.html")
-
 @app.get("/edit")
 async def edit(): return serve_html("edit.html")
 
-# API: Получение истории сообщений из базы
-@app.get("/api/messages")
-async def get_messages():
+@app.get("/api/users")
+async def get_users():
     conn = sqlite3.connect("database.db")
-    cursor = conn.cursor()
-    cursor.execute("SELECT user, text FROM msgs")
-    data = [{"u": r[0], "t": r[1]} for r in cursor.fetchall()]
+    res = conn.execute("SELECT username FROM users").fetchall()
+    conn.close()
+    return [r[0] for r in res]
+
+@app.get("/api/messages")
+async def get_messages(me: str, with_user: str):
+    conn = sqlite3.connect("database.db")
+    cur = conn.execute("SELECT from_user, text FROM msgs WHERE (from_user=? AND to_user=?) OR (from_user=? AND to_user=?)", (me, with_user, with_user, me))
+    data = [{"u": r[0], "t": r[1]} for r in cur.fetchall()]
     conn.close()
     return data
 
-# API: Регистрация пользователя в базе для поиска
 @app.post("/api/register")
 async def register(user: str):
     conn = sqlite3.connect("database.db")
     conn.execute("INSERT OR IGNORE INTO users (username) VALUES (?)", (user,))
     conn.commit()
     conn.close()
-    return {"status": "ok"}
+    return {"ok": True}
 
-# WebSocket: Обработка живого чата
-@app.websocket("/ws")
-async def websocket_endpoint(websocket: WebSocket):
-    await manager.connect(websocket)
+@app.websocket("/ws/{user}")
+async def websocket_endpoint(websocket: WebSocket, user: str):
+    await manager.connect(user, websocket)
     try:
         while True:
             data = await websocket.receive_text()
             msg = json.loads(data)
-            
-            # Сохраняем сообщение в базу данных, чтобы оно не пропадало
             conn = sqlite3.connect("database.db")
-            conn.execute("INSERT INTO msgs (user, text) VALUES (?, ?)", (msg['u'], msg['t']))
+            conn.execute("INSERT INTO msgs (from_user, to_user, text) VALUES (?, ?, ?)", (user, msg['to'], msg['t']))
             conn.commit()
             conn.close()
-            
-            # Рассылаем сообщение всем пользователям онлайн
-            await manager.broadcast(data)
+            await manager.send_private(json.dumps({"u": user, "t": msg['t']}), msg['to'])
+            await websocket.send_text(json.dumps({"u": user, "t": msg['t']}))
     except WebSocketDisconnect:
-        manager.disconnect(websocket)
-
-if __name__ == "__main__":
-    import uvicorn
-    # Запуск сервера
-    port = int(os.environ.get("PORT", 8000))
-    uvicorn.run(app, host="0.0.0.0", port=port)
+        manager.disconnect(user)

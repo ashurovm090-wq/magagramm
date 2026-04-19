@@ -2,26 +2,41 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Настройки - MagaGramm</title>
     <style>
-        body { font-family: -apple-system, sans-serif; background: #fff; padding: 20px; }
-        h3 { font-size: 28px; letter-spacing: -0.5px; }
-        label { display: block; color: #8e8e93; font-size: 13px; text-transform: uppercase; margin: 20px 0 8px 5px; }
-        input, textarea { width: 100%; border: 1px solid #e5e5ea; background: #f2f2f7; padding: 15px; border-radius: 12px; font-size: 17px; box-sizing: border-box; outline: none; }
-        button { width: 100%; padding: 16px; background: #007aff; color: #fff; border: none; border-radius: 12px; font-size: 17px; font-weight: 600; margin-top: 30px; }
+        body { font-family: -apple-system, sans-serif; background: #fff; margin: 0; }
+        .hdr { padding: 15px 16px; display: flex; align-items: center; border-bottom: 0.5px solid #ccc; }
+        .hdr a { color: #007aff; text-decoration: none; font-size: 17px; flex: 1; }
+        .hdr b { flex: 2; text-align: center; font-size: 17px; }
+        .save { color: #007aff; font-weight: 600; cursor: pointer; text-align: right; flex: 1; }
+        .form { padding: 20px 16px; }
+        .row { background: #f2f2f7; border-radius: 10px; padding: 12px; margin-bottom: 20px; }
+        label { display: block; color: #8e8e93; font-size: 12px; text-transform: uppercase; margin-bottom: 4px; }
+        input { width: 100%; border: none; background: none; font-size: 17px; outline: none; padding: 0; }
     </style>
 </head>
 <body>
-    <h3>Профиль</h3>
-    <label>Имя пользователя</label><input type="text" id="un">
-    <label>О себе</label><textarea id="bio" rows="4"></textarea>
-    <button onclick="save()">Сохранить</button>
+    <div class="hdr">
+        <a href="/profile">Отмена</a>
+        <b>Настройки</b>
+        <div class="save" onclick="save()">Готово</div>
+    </div>
+    <div class="form">
+        <div class="row">
+            <label>Имя пользователя</label>
+            <input type="text" id="newName" placeholder="Введите имя">
+        </div>
+        <p style="color: #8e8e93; font-size: 14px; padding: 0 12px;">Изменение имени обновит ваш профиль в MagaGramm.</p>
+    </div>
     <script>
-        document.getElementById('un').value = localStorage.getItem('user');
-        document.getElementById('bio').value = localStorage.getItem('bio') || '';
-        function save() {
-            localStorage.setItem('user', document.getElementById('un').value);
-            localStorage.setItem('bio', document.getElementById('bio').value);
-            location.href = '/profile';
+        document.getElementById('newName').value = localStorage.getItem('user') || '';
+        async function save() {
+            const n = document.getElementById('newName').value.trim();
+            if(n) {
+                localStorage.setItem('user', n);
+                await fetch(`/api/register?user=${encodeURIComponent(n)}`, {method: 'POST'});
+                location.href = '/profile';
+            }
         }
     </script>
 </body>
